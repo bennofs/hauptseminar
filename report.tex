@@ -1,0 +1,181 @@
+\documentclass[sigconf,authordraft=true,nonacm=true]{acmart}
+
+\usepackage{polyglossia}
+\usepackage{fontspec}
+\usepackage{blindtext}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usepackage{tabularx}
+\usepackage{amsmath}
+\usepackage{makecell}
+
+\setdefaultlanguage{english}
+\usepackage{cleveref}
+
+\newcommand{\etal}{\hbox{\emph{et al.}}\xspace}
+\renewcommand{\cellalign}{l}
+
+\begin{document}
+
+\title{Graph- and behaviour-based machine learning models to understand program semantics}
+\author{Benno Fünfstück}
+\email{benno.fuenfstueck@tu-dresden.de}
+
+\begin{abstract}
+ 
+\end{abstract}
+
+\maketitle
+
+\section{Introduction}
+
+Many tools that operate on source code require a form of program analysis.
+This includes compilers needing to understand program semantics for optimization,
+static analyzers designed to prevent bugs in programs
+or development environments suggesting code completions and improvements.
+Traditionally program analysis relies on abstraction, since finding an exact solution to the underlying problems is often computationally infeasible or even impossible.
+
+But with the availability of large open source code repositories such as GitHub\footnote{https://github.com}, a new form of program analysis based on methods from machine learning is possible.
+The fundamental principle of this form of program analysis is captured by the following hypothesis, the natural code hypothesis, as stated by \citet{allamanis_survey_2018}:
+\begin{quote}
+Software is a form of human communication;
+software corpora have similar statistical properties to natural language corpora;
+and these properties can be exploited to build better software engineering tools.
+\end{quote}
+For example, identifier names are not choosen randomly, but instead based on the meaning of the variable and therefore convey useful information for analysis.
+This suggests using machine learning models for code.
+
+A straightforward method then is to take models that have proven successful in natural language processing and apply them to source code.
+Various applications of this pattern have been described in the literature \cite{ahmad_transformer-based_2020}
+
+The advantage of this method is that models working on sequences are well understood.
+Additionally, since the order of tokens is preserved, the models can also learn from that information.
+
+
+
+Taking successful models from the field of natural language processing, many models are based on the tokens of the source code directly.
+
+The advantage of this method is that it can use models
+
+
+
+\section{Graph-based model}
+Graphs are a natural representation for source code, due to its highly interlinked structure.
+In this section, we will thus look at models that can learn from the graph structure.
+A flexible model for this task is the message passing neural network, introduced by \citet{gilmer_neural_2017}.
+We will first explain the general concept of message passing neural networks in \cref{sec:mpnn}.
+We then compare different concrete instances of this model applied to source code in \cref{sec:app}.
+
+Message passing neural networks are not the only kind of model that uses the graph structure for learning.
+One alternative is described by \citet{raychev_predicting_2019} where they use conditional random fields to predict types and names of JavaScript variables.
+Program elements are represented as nodes in a graph with edges between them capturing dependencies in their properties.
+The probabilitistic weight of the dependency can then be learned from data, and the model be used to predict the unknown properties from known properties, taking into accout the dependencies between the predictions.
+We will however focus on message passing neural networks here since they are the most popular model found in literature and have successfully been applied to several different tasks (see also \cref{sec:eval}).
+
+\subsection{Message passing neural network}\label{sec:mpnn}
+We use a notation similar to Gilmer et al.~\cite{gilmer_neural_2017}.
+Neural message passing networks start by assigning an initial hidden state $h^0_v$ to each node $v$ in the graph.
+The initial state is usually computed as an embedding of the features of the node.
+At every timestep, the network then computes a message for each edge using the \textit{message function} $M$.
+The messages of all edges with the same target are aggregated by an \textit{aggregation function} $h$.
+This is a slight generalization of the original formulation, where $h$ is always the sum of all incoming messages.
+The aggregated messages are then used to update the node hidden state, using the \textit{update function} $U$ for the node.
+The following two equations describe this process:
+
+\begin{align}
+  m^{t+1}_{v} & = h(\{M(h^{t}_{v},h^{t}_{w},e_{vw}) | w \in N(v)\}) \label{eq:msg} \\
+  h^{t+1}_{v} & = U(h^{t}_{v}, m^{t+1}) \label{eq:update}
+\end{align}
+
+The steps are repeated for $T$ timesteps. Finally, the overall prediction is computed by applying the readout function to the final hidden states $\{h^{T}_{v}\}$ of all nodes:
+
+\begin{align}
+  \hat{y} &= R(\{h^{T}_{v} | v \in G\}) \label{eq:readout}
+\end{align}
+
+In this computation $M$, $U$ and $R$ are all learnable differentiable functions.
+
+\begin{figure}
+  \begin{tikzpicture}
+  \end{tikzpicture}
+\end{figure}
+
+\subsection{Applications to source code}\label{sec:app}
+There exist various applications of message passing neural networks to source code.
+
+The application of message passing neural networks to source code has first been described by \citet{allamanis_learning_2018} to infer variable names and detect variable misuse bugs.
+
+
+\begin{table*}[t]
+  \begin{minipage}{\textwidth}
+    \begin{tabularx}{\textwidth}{llXXXX}
+      \toprule
+      Reference                              & $M(h_{v},h_{w},e)$\footnote{$k$ is the edge type (label)} & Aggregation & Update & Readout & Task \\ \midrule
+      \citet{allamanis_learning_2018}        & $A_{e}h_{w} + b_{e}$ & sum & GRU\footnote{gated recurrent unit\cite{cho_learning_2014}} & & \textsc{VarNaming}, \textsc{VarMisuse}  \\
+      \citet{allamanis_typilus_2020}         & $A_{e}h_{w}$ & \makecell{elementwise\\ maximum} & GRU & & type prediction \\
+      \citet{brauckmann_compiler-based_2020} & $A_{e}h_{w} + b_{e}$ & sum & GRU & & OpenCL device mapping, OpenCL thread corsening \\
+      \citet{cummins_programl_2020}          & \makecell{ $A_{type(e)}(h_{w} \bigodot POS(e))$ \\ footnote \footnote{$type(e)$ is the edge type and $POS(e)$ is a sinusodial positional encoding of the argument order. $\bigodot$ is elementwise multiplication.}} & sum & GRU & & graph algorithms, device mapping, algorithm classification \\
+      \citet{fernandes_structured_2020}      & $A_{e}h_{w} + b_{e}$ & sum & GRU & & \textsc{MethodNaming}, \textsc{MethodDoc} \\
+      \citet{hellendoorn_are_2019}           & $A_{e}h_{w} + b_{e}$ & sum & GRU & & \\
+      \citet{hellendoorn_global_2019}        & $A_{e}h_{w} + b_{e}$ & sum & GRU & & GGNN with special readout and initial node rep from RNN\\
+      \citet{li_using_2019}                  & $A_{e}h_{w} + b_{e}$ & sum & GRU & & GGNN from \cite{allamanis_learning_2018} \\
+      \citet{schrouff_inferring_2019}        & $A_{e}h_{w} + b_{e}$ & sum & GRU & & GGNN with(out) master node \\
+      \citet{si_learning_2018}               & [] & & $h^{t+1}_{v} = m^{t+1}_{v}$ & & GNN, not GGNN, badly specified \\
+      \citet{wei_lambdanet_2020}             & custom based on edge type & & $h^{t+1}_{v} = h^{t}_{v} + m^{t+1}_{v}$ & & not GGNN
+
+    \end{tabularx}
+  \end{minipage}
+
+  \caption{Different specializations of message passing neural networks to source code tasks}\label{fig:mpnn-applications}
+\end{table*}
+
+\section{Behaviour-based model}
+The defining property of source code is that it is executable.
+But the graph based models do not capture this aspect of source code: they only rely on static information.
+The naturalness hypothesis provides a justification for this choice, as the communicative intent of the programmer is likely to be more clear in the source code form than in the dynamic behaviour of the program.
+Yet, depending on the task, the runtime behaviour of a program might also provide valueable patterns that can be learned by a suitable model.
+For an example, consider the algorithm classification problem presented in \cref{ex:syntax-semantics}.
+The
+
+\begin{figure}
+  \caption{}\label{ex:syntax-semantics}
+\end{figure}
+
+
+Because the code is much closer to the programmer, statistical patterns that arise from the communicative aspect of code
+In this section, we explore models that learn from the dynamic behaviour of source code.
+
+This learning task has similarities to the field of program synthesis, where the task is to infer a program
+
+
+\section{Evaluation}\label{sec:eval}
+
+Unfortunately, comparision between different architectures is difficult, since they are often applied to different tasks.
+Even when the tasks are similar (for example, both models applied to infer types),
+sometimes the results are not comparable because they are evaluated on different datasets.
+These factors prevent a clear comparision between different approaches.
+
+Instead of doing a full quantitative comparision of all models, we will instead focus on a subset of tasks for which there are comparisions of different architectures:
+
+\begin{itemize}
+  \item type prediction for dynamically typed code
+  \item invariant inference
+  \item method summarization
+\end{itemize}
+
+\subsection{Type prediction}
+
+\subsection{Invariant inference}
+
+\subsection{Method summarization}
+
+
+\section{Conclusion}
+
+\Blindtext
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{zotero}
+
+\end{document}
