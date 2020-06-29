@@ -1,0 +1,672 @@
+@article{yao20_learn_nonlin_loop_invar_with,
+  author          = {Yao, Jianan and Ryan, Gabriel and Wong, Justin and Jana,
+                  Suman and Gu, Ronghui},
+  title           = {Learning Nonlinear Loop Invariants With Gated Continuous
+                  Logic Networks},
+  journal         = {CoRR},
+  year            = {2020},
+  url             = {http://arxiv.org/abs/2003.07959v3},
+  file            = {}
+  abstract        = {Verifying real-world programs often requires inferring loop
+                  invariants with nonlinear constraints. This is especially true
+                  in programs that perform many numerical operations, such as
+                  control systems for avionics or industrial plants. Recently,
+                  data-driven methods for loop invariant inference have shown
+                  promise, especially on linear invariants. However, applying
+                  data-driven inference to nonlinear loop invariants is
+                  challenging due to the large numbers of and magnitudes of
+                  high-order terms, the potential for overfitting on a small
+                  number of samples, and the large space of possible inequality
+                  bounds. In this paper, we introduce a new neural architecture
+                  for general SMT learning, the Gated Continuous Logic Network
+                  (G-CLN), and apply it to nonlinear loop invariant learning.
+                  G-CLNs extend the Continuous Logic Network (CLN) architecture
+                  with gating units and dropout, which allow the model to
+                  robustly learn general invariants over large numbers of terms.
+                  To address overfitting that arises from finite program
+                  sampling, we introduce fractional sampling---a sound
+                  relaxation of loop semantics to continuous functions that
+                  facilitates unbounded sampling on real domain. We additionally
+                  design a new CLN activation function, the Piecewise Biased
+                  Quadratic Unit (PBQU), for naturally learning tight inequality
+                  bounds. We incorporate these methods into a nonlinear loop
+                  invariant inference system that can learn general nonlinear
+                  loop invariants. We evaluate our system on a benchmark of
+                  nonlinear loop invariants and show it solves 26 out of 27
+                  problems, 3 more than prior work, with an average runtime of
+                  53.3 seconds. We further demonstrate the generic learning
+                  ability of G-CLNs by solving all 124 problems in the linear
+                  Code2Inv benchmark. We also perform a quantitative stability
+                  evaluation and show G-CLNs have a convergence rate of $97.5\%$
+                  on quadratic problems, a $39.2\%$ improvement over CLN
+                  models.},
+  archivePrefix   = {arXiv},
+  eprint          = {2003.07959v3},
+  primaryClass    = {cs.SE},
+}
+
+
+@inproceedings{menendez17_alive_infer,
+  author          = {David Menendez and Santosh Nagarakatte},
+  title           = {Alive-Infer: data-driven precondition inference for
+                  peephole optimizations in LLVM},
+  booktitle       = {Proceedings of the 38th ACM SIGPLAN Conference on
+                  Programming Language Design and Implementation - PLDI 2017},
+  year            = 2017,
+  pages           = {nil},
+  doi             = {10.1145/3062341.3062372},
+  url             = {https://doi.org/10.1145/3062341.3062372},
+  DATE_ADDED      = {Wed May 27 17:02:07 2020},
+  month           = {-},
+}
+
+@Article{Raychev_2016,
+  author          = {Raychev, Veselin and Bielik, Pavol and Vechev, Martin},
+  title           = {Probabilistic model for code with decision trees},
+  year            = 2016,
+  doi             = {10.1145/2983990.2984041},
+  url             = {http://dx.doi.org/10.1145/2983990.2984041},
+  isbn            = 9781450344449,
+  journal         = {Proceedings of the 2016 ACM SIGPLAN International
+                  Conference on Object-Oriented Programming, Systems, Languages,
+                  and Applications - OOPSLA 2016},
+  publisher       = {ACM Press}
+}
+
+@Article{Raychev_2019,
+  author          = {Raychev, Veselin and Vechev, Martin and Krause, Andreas},
+  title           = {Predicting program properties from “big code”},
+  year            = 2019,
+  volume          = 62,
+  number          = 3,
+  month           = {Feb},
+  pages           = {99–107},
+  issn            = {1557-7317},
+  doi             = {10.1145/3306204},
+  url             = {http://dx.doi.org/10.1145/3306204},
+  journal         = {Communications of the ACM},
+  publisher       = {Association for Computing Machinery (ACM)}
+}
+
+@Article{DBLP:journals/corr/abs-2004-10657,
+  author          = {Miltiadis Allamanis and Earl T. Barr and Soline Ducousso
+                  and Zheng Gao},
+  title           = {Typilus: Neural Type Hints},
+  year            = 2020,
+  volume          = {abs/2004.10657},
+  eprint          = {2004.10657},
+  url             = {https://arxiv.org/abs/2004.10657},
+  journal         = {CoRR},
+  archiveprefix   = {arXiv},
+  timestamp       = {Tue, 28 Apr 2020 16:10:02 +0200},
+  biburl          = {https://dblp.org/rec/journals/corr/abs-2004-10657.bib},
+  bibsource       = {dblp computer science bibliography, https://dblp.org}
+}
+
+@Online{ramakrishnan20:_seman_robus_model_sourc_code,
+  author          = {Goutham Ramakrishnan AND Jordan Henkel AND Zi Wang AND Aws
+                  Albarghouthi AND Somesh Jha AND Thomas Reps},
+  title           = {{Semantic Robustness of Models of Source Code}},
+  year            = 2020,
+  archiveprefix   = {arXiv},
+  eprint          = {2002.03043v2},
+  primaryclass    = {cs.LG}
+}
+
+@misc{bielik2020adversarial,
+    title={Adversarial Robustness for Code},
+    author={Pavol Bielik and Martin Vechev},
+    year={2020},
+    eprint={2002.04694},
+    archivePrefix={arXiv},
+    primaryClass={cs.LG}
+}
+
+@InProceedings{DBLP:conf/sigsoft/HellendoornD17,
+  author          = {Vincent J. Hellendoorn and Premkumar T. Devanbu},
+  title           = {Are deep neural networks the best choice for modeling
+                  source code?},
+  year            = 2017,
+  booktitle       = {Proceedings of the 2017 11th Joint Meeting on Foundations
+                  of Software Engineering, {ESEC/FSE} 2017, Paderborn, Germany,
+                  September 4-8, 2017},
+  pages           = {763-773},
+  doi             = {10.1145/3106237.3106290},
+  url             = {https://doi.org/10.1145/3106237.3106290},
+  crossref        = {DBLP:conf/sigsoft/2017},
+  timestamp       = {Tue, 06 Nov 2018 16:59:23 +0100},
+  biburl          = {https://dblp.org/rec/conf/sigsoft/HellendoornD17.bib},
+  bibsource       = {dblp computer science bibliography, https://dblp.org}
+}
+
+@proceedings{DBLP:conf/sigsoft/2017,
+  editor    = {Eric Bodden and
+               Wilhelm Sch{\"{a}}fer and
+               Arie van Deursen and
+               Andrea Zisman},
+  title     = {Proceedings of the 2017 11th Joint Meeting on Foundations of Software
+               Engineering, {ESEC/FSE} 2017, Paderborn, Germany, September 4-8, 2017},
+  publisher = {{ACM}},
+  year      = {2017},
+  url       = {http://dl.acm.org/citation.cfm?id=3106237},
+  isbn      = {978-1-4503-5105-8},
+  timestamp = {Wed, 16 Aug 2017 07:56:16 +0200},
+  biburl    = {https://dblp.org/rec/conf/sigsoft/2017.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@Article{DBLP:journals/corr/abs-1903-05734,
+  author          = {Rafael{-}Michael Karampatsis and Charles A. Sutton},
+  title           = {Maybe Deep Neural Networks are the Best Choice for Modeling
+                  Source Code},
+  year            = 2019,
+  volume          = {abs/1903.05734},
+  eprint          = {1903.05734},
+  url             = {http://arxiv.org/abs/1903.05734},
+  journal         = {CoRR},
+  archiveprefix   = {arXiv},
+  timestamp       = {Thu, 17 Oct 2019 08:41:42 +0200},
+  biburl          = {https://dblp.org/rec/journals/corr/abs-1903-05734.bib},
+  bibsource       = {dblp computer science bibliography, https://dblp.org}
+}
+
+@InProceedings{DBLP:conf/pldi/AllamanisBDG20,
+  author          = {Miltiadis Allamanis and Earl T. Barr and Soline Ducousso
+                  and Zheng Gao},
+  title           = {Typilus: neural type hints},
+  year            = 2020,
+  booktitle       = {Proceedings of the 41st {ACM} {SIGPLAN} International
+                  Conference on Programming Language Design and Implementation,
+                  {PLDI} 2020, London, UK, June 15-20, 2020},
+  pages           = {91-105},
+  doi             = {10.1145/3385412.3385997},
+  url             = {https://doi.org/10.1145/3385412.3385997},
+  crossref        = {DBLP:conf/pldi/2020},
+  timestamp       = {Tue, 09 Jun 2020 13:52:54 +0200},
+  biburl          = {https://dblp.org/rec/conf/pldi/AllamanisBDG20.bib},
+  bibsource       = {dblp computer science bibliography, https://dblp.org}
+}
+
+@proceedings{DBLP:conf/pldi/2020,
+  editor    = {Alastair F. Donaldson and
+               Emina Torlak},
+  title     = {Proceedings of the 41st {ACM} {SIGPLAN} International Conference on
+               Programming Language Design and Implementation, {PLDI} 2020, London,
+               UK, June 15-20, 2020},
+  publisher = {{ACM}},
+  year      = {2020},
+  url       = {https://doi.org/10.1145/3385412},
+  doi       = {10.1145/3385412},
+  isbn      = {978-1-4503-7613-6},
+  timestamp = {Tue, 09 Jun 2020 13:45:15 +0200},
+  biburl    = {https://dblp.org/rec/conf/pldi/2020.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@InProceedings{DBLP:conf/sigsoft/HellendoornBBA18,
+  author          = {Vincent J. Hellendoorn and Christian Bird and Earl T. Barr
+                  and Miltiadis Allamanis},
+  title           = {Deep learning type inference},
+  year            = 2018,
+  booktitle       = {Proceedings of the 2018 {ACM} Joint Meeting on European
+                  Software Engineering Conference and Symposium on the
+                  Foundations of Software Engineering, {ESEC/SIGSOFT} {FSE}
+                  2018, Lake Buena Vista, FL, USA, November 04-09, 2018},
+  pages           = {152-162},
+  doi             = {10.1145/3236024.3236051},
+  url             = {https://doi.org/10.1145/3236024.3236051},
+  crossref        = {DBLP:conf/sigsoft/2018},
+  timestamp       = {Wed, 25 Sep 2019 18:22:27 +0200},
+  biburl          = {https://dblp.org/rec/conf/sigsoft/HellendoornBBA18.bib},
+  bibsource       = {dblp computer science bibliography, https://dblp.org}
+}
+
+@proceedings{DBLP:conf/sigsoft/2018,
+  editor    = {Gary T. Leavens and
+               Alessandro Garcia and
+               Corina S. Pasareanu},
+  title     = {Proceedings of the 2018 {ACM} Joint Meeting on European Software Engineering
+               Conference and Symposium on the Foundations of Software Engineering,
+               {ESEC/SIGSOFT} {FSE} 2018, Lake Buena Vista, FL, USA, November 04-09,
+               2018},
+  publisher = {{ACM}},
+  year      = {2018},
+  url       = {http://dl.acm.org/citation.cfm?id=3236024},
+  isbn      = {978-1-4503-5573-5},
+  timestamp = {Sun, 28 Oct 2018 14:40:37 +0100},
+  biburl    = {https://dblp.org/rec/conf/sigsoft/2018.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@InProceedings{DBLP:conf/nips/SiDRNS18,
+  author          = {Xujie Si and Hanjun Dai and Mukund Raghothaman and Mayur
+                  Naik and Le Song},
+  title           = {Learning Loop Invariants for Program Verification},
+  year            = 2018,
+  booktitle       = {Advances in Neural Information Processing Systems 31:
+                  Annual Conference on Neural Information Processing Systems
+                  2018, NeurIPS 2018, 3-8 December 2018, Montr{\'{e}}al, Canada},
+  pages           = {7762-7773},
+  url             =
+                  {http://papers.nips.cc/paper/8001-learning-loop-invariants-for-program-verification},
+  crossref        = {DBLP:conf/nips/2018},
+  timestamp       = {Fri, 06 Mar 2020 17:00:31 +0100},
+  biburl          = {https://dblp.org/rec/conf/nips/SiDRNS18.bib},
+  bibsource       = {dblp computer science bibliography, https://dblp.org}
+}
+
+@proceedings{DBLP:conf/nips/2018,
+  editor    = {Samy Bengio and
+               Hanna M. Wallach and
+               Hugo Larochelle and
+               Kristen Grauman and
+               Nicol{\`{o}} Cesa{-}Bianchi and
+               Roman Garnett},
+  title     = {Advances in Neural Information Processing Systems 31: Annual Conference
+               on Neural Information Processing Systems 2018, NeurIPS 2018, 3-8 December
+               2018, Montr{\'{e}}al, Canada},
+  year      = {2018},
+  url       = {http://papers.nips.cc/book/advances-in-neural-information-processing-systems-31-2018},
+  timestamp = {Fri, 06 Mar 2020 17:00:31 +0100},
+  biburl    = {https://dblp.org/rec/conf/nips/2018.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@InProceedings{DBLP:conf/icml/CvitkovicSA19,
+  author          = {Milan Cvitkovic and Badal Singh and Animashree Anandkumar},
+  title           = {Open Vocabulary Learning on Source Code with a
+                  Graph-Structured Cache},
+  year            = 2019,
+  booktitle       = {Proceedings of the 36th International Conference on Machine
+                  Learning, {ICML} 2019, 9-15 June 2019, Long Beach, California,
+                  {USA}},
+  pages           = {1475-1485},
+  url             = {http://proceedings.mlr.press/v97/cvitkovic19b.html},
+  crossref        = {DBLP:conf/icml/2019},
+  timestamp       = {Tue, 11 Jun 2019 15:37:38 +0200},
+  biburl          = {https://dblp.org/rec/conf/icml/CvitkovicSA19.bib},
+  bibsource       = {dblp computer science bibliography, https://dblp.org}
+}
+
+@proceedings{DBLP:conf/icml/2019,
+  editor    = {Kamalika Chaudhuri and
+               Ruslan Salakhutdinov},
+  title     = {Proceedings of the 36th International Conference on Machine Learning,
+               {ICML} 2019, 9-15 June 2019, Long Beach, California, {USA}},
+  series    = {Proceedings of Machine Learning Research},
+  volume    = {97},
+  publisher = {{PMLR}},
+  year      = {2019},
+  url       = {http://proceedings.mlr.press/v97/},
+  timestamp = {Tue, 11 Jun 2019 15:37:38 +0200},
+  biburl    = {https://dblp.org/rec/conf/icml/2019.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@InProceedings{DBLP:conf/pldi/HeoRSN19,
+  author          = {Kihong Heo and Mukund Raghothaman and Xujie Si and Mayur
+                  Naik},
+  title           = {Continuously reasoning about programs using differential
+                  Bayesian inference},
+  year            = 2019,
+  booktitle       = {Proceedings of the 40th {ACM} {SIGPLAN} Conference on
+                  Programming Language Design and Implementation, {PLDI} 2019,
+                  Phoenix, AZ, USA, June 22-26, 2019},
+  pages           = {561-575},
+  doi             = {10.1145/3314221.3314616},
+  url             = {https://doi.org/10.1145/3314221.3314616},
+  crossref        = {DBLP:conf/pldi/2019},
+  timestamp       = {Sun, 09 Jun 2019 19:00:05 +0200},
+  biburl          = {https://dblp.org/rec/conf/pldi/HeoRSN19.bib},
+  bibsource       = {dblp computer science bibliography, https://dblp.org}
+}
+
+@proceedings{DBLP:conf/pldi/2019,
+  editor    = {Kathryn S. McKinley and
+               Kathleen Fisher},
+  title     = {Proceedings of the 40th {ACM} {SIGPLAN} Conference on Programming
+               Language Design and Implementation, {PLDI} 2019, Phoenix, AZ, USA,
+               June 22-26, 2019},
+  publisher = {{ACM}},
+  year      = {2019},
+  url       = {https://doi.org/10.1145/3314221},
+  doi       = {10.1145/3314221},
+  isbn      = {978-1-4503-6712-7},
+  timestamp = {Sun, 09 Jun 2019 18:52:19 +0200},
+  biburl    = {https://dblp.org/rec/conf/pldi/2019.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@Article{DBLP:journals/corr/abs-2004-00348,
+  author          = {Irene Vlassi Pandi and Earl T. Barr and Andrew D. Gordon
+                  and Charles A. Sutton},
+  title           = {OptTyper: Probabilistic Type Inference by Optimising
+                  Logical and Natural Constraints},
+  year            = 2020,
+  volume          = {abs/2004.00348},
+  eprint          = {2004.00348},
+  url             = {https://arxiv.org/abs/2004.00348},
+  journal         = {CoRR},
+  archiveprefix   = {arXiv},
+  timestamp       = {Wed, 08 Apr 2020 17:08:25 +0200},
+  biburl          = {https://dblp.org/rec/journals/corr/abs-2004-00348.bib},
+  bibsource       = {dblp computer science bibliography, https://dblp.org}
+}
+
+@InProceedings{DBLP:conf/iclr/WeiGDD20,
+  author          = {Jiayi Wei and Maruth Goyal and Greg Durrett and Isil
+                  Dillig},
+  title           = {LambdaNet: Probabilistic Type Inference using Graph Neural
+                  Networks},
+  year            = 2020,
+  booktitle       = {8th International Conference on Learning Representations,
+                  {ICLR} 2020, Addis Ababa, Ethiopia, April 26-30, 2020},
+  url             = {https://openreview.net/forum?id=Hkx6hANtwH},
+  crossref        = {DBLP:conf/iclr/2020},
+  timestamp       = {Thu, 07 May 2020 17:11:47 +0200},
+  biburl          = {https://dblp.org/rec/conf/iclr/WeiGDD20.bib},
+  bibsource       = {dblp computer science bibliography, https://dblp.org}
+}
+
+@proceedings{DBLP:conf/iclr/2020,
+  title     = {8th International Conference on Learning Representations, {ICLR} 2020,
+               Addis Ababa, Ethiopia, April 26-30, 2020},
+  publisher = {OpenReview.net},
+  year      = {2020},
+  url       = {https://openreview.net/group?id=ICLR.cc/2020/Conference},
+  timestamp = {Thu, 07 May 2020 17:11:47 +0200},
+  biburl    = {https://dblp.org/rec/conf/iclr/2020.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@InProceedings{DBLP:conf/icse/BrunE04,
+  author          = {Yuriy Brun and Michael D. Ernst},
+  title           = {Finding Latent Code Errors via Machine Learning over
+                  Program Executions},
+  year            = 2004,
+  booktitle       = {26th International Conference on Software Engineering
+                  {(ICSE} 2004), 23-28 May 2004, Edinburgh, United Kingdom},
+  pages           = {480-490},
+  doi             = {10.1109/ICSE.2004.1317470},
+  url             = {https://doi.org/10.1109/ICSE.2004.1317470},
+  crossref        = {DBLP:conf/icse/2004},
+  timestamp       = {Wed, 16 Oct 2019 14:14:49 +0200},
+  biburl          = {https://dblp.org/rec/conf/icse/BrunE04.bib},
+  bibsource       = {dblp computer science bibliography, https://dblp.org}
+}
+
+@proceedings{DBLP:conf/icse/2004,
+  editor    = {Anthony Finkelstein and
+               Jacky Estublier and
+               David S. Rosenblum},
+  title     = {26th International Conference on Software Engineering {(ICSE} 2004),
+               23-28 May 2004, Edinburgh, United Kingdom},
+  publisher = {{IEEE} Computer Society},
+  year      = {2004},
+  url       = {https://ieeexplore.ieee.org/xpl/conhome/9201/proceeding},
+  isbn      = {0-7695-2163-0},
+  timestamp = {Wed, 16 Oct 2019 14:14:49 +0200},
+  biburl    = {https://dblp.org/rec/conf/icse/2004.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@InProceedings{DBLP:conf/cc/BrauckmannGEC20,
+  author          = {Alexander Brauckmann and Andr{\'{e}}s Goens and Sebastian
+                  Ertel and Jer{\'{o}}nimo Castrill{\'{o}}n},
+  title           = {Compiler-based graph representations for deep learning
+                  models of code},
+  year            = 2020,
+  booktitle       = {{CC} '20: 29th International Conference on Compiler
+                  Construction, San Diego, CA, USA, February 22-23, 2020},
+  pages           = {201-211},
+  doi             = {10.1145/3377555.3377894},
+  url             = {https://doi.org/10.1145/3377555.3377894},
+  crossref        = {DBLP:conf/cc/2020},
+  timestamp       = {Tue, 03 Mar 2020 18:10:48 +0100},
+  biburl          = {https://dblp.org/rec/conf/cc/BrauckmannGEC20.bib},
+  bibsource       = {dblp computer science bibliography, https://dblp.org}
+}
+
+@proceedings{DBLP:conf/cc/2020,
+  editor    = {Louis{-}No{\"{e}}l Pouchet and
+               Alexandra Jimborean},
+  title     = {{CC} '20: 29th International Conference on Compiler Construction,
+               San Diego, CA, USA, February 22-23, 2020},
+  publisher = {{ACM}},
+  year      = {2020},
+  url       = {https://doi.org/10.1145/3377555},
+  doi       = {10.1145/3377555},
+  isbn      = {978-1-4503-7120-9},
+  timestamp = {Tue, 03 Mar 2020 18:07:20 +0100},
+  biburl    = {https://dblp.org/rec/conf/cc/2020.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@Article{DBLP:journals/corr/abs-1903-06089,
+  author          = {Vincent J. Hellendoorn and Premkumar T. Devanbu and
+                  Oleksandr Polozov and Mark Marron},
+  title           = {Are My Invariants Valid? {A} Learning Approach},
+  year            = 2019,
+  volume          = {abs/1903.06089},
+  eprint          = {1903.06089},
+  url             = {http://arxiv.org/abs/1903.06089},
+  journal         = {CoRR},
+  archiveprefix   = {arXiv},
+  timestamp       = {Sun, 31 Mar 2019 19:01:24 +0200},
+  biburl          = {https://dblp.org/rec/journals/corr/abs-1903-06089.bib},
+  bibsource       = {dblp computer science bibliography, https://dblp.org}
+}
+
+@InProceedings{DBLP:conf/iclr/VasicKMBS19,
+  author          = {Marko Vasic and Aditya Kanade and Petros Maniatis and David
+                  Bieber and Rishabh Singh},
+  title           = {Neural Program Repair by Jointly Learning to Localize and
+                  Repair},
+  year            = 2019,
+  booktitle       = {7th International Conference on Learning Representations,
+                  {ICLR} 2019, New Orleans, LA, USA, May 6-9, 2019},
+  url             = {https://openreview.net/forum?id=ByloJ20qtm},
+  crossref        = {DBLP:conf/iclr/2019},
+  timestamp       = {Thu, 25 Jul 2019 14:26:00 +0200},
+  biburl          = {https://dblp.org/rec/conf/iclr/VasicKMBS19.bib},
+  bibsource       = {dblp computer science bibliography, https://dblp.org}
+}
+
+@proceedings{DBLP:conf/iclr/2019,
+  title     = {7th International Conference on Learning Representations, {ICLR} 2019,
+               New Orleans, LA, USA, May 6-9, 2019},
+  publisher = {OpenReview.net},
+  year      = {2019},
+  url       = {https://openreview.net/group?id=ICLR.cc/2019/Conference},
+  timestamp = {Thu, 25 Jul 2019 13:03:15 +0200},
+  biburl    = {https://dblp.org/rec/conf/iclr/2019.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@InProceedings{DBLP:conf/icml/GilmerSRVD17,
+  author          = {Justin Gilmer and Samuel S. Schoenholz and Patrick F. Riley
+                  and Oriol Vinyals and George E. Dahl},
+  title           = {Neural Message Passing for Quantum Chemistry},
+  year            = 2017,
+  booktitle       = {Proceedings of the 34th International Conference on Machine
+                  Learning, {ICML} 2017, Sydney, NSW, Australia, 6-11 August
+                  2017},
+  pages           = {1263-1272},
+  url             = {http://proceedings.mlr.press/v70/gilmer17a.html},
+  crossref        = {DBLP:conf/icml/2017},
+  timestamp       = {Wed, 29 May 2019 08:41:45 +0200},
+  biburl          = {https://dblp.org/rec/conf/icml/GilmerSRVD17.bib},
+  bibsource       = {dblp computer science bibliography, https://dblp.org}
+}
+
+@proceedings{DBLP:conf/icml/2017,
+  editor    = {Doina Precup and
+               Yee Whye Teh},
+  title     = {Proceedings of the 34th International Conference on Machine Learning,
+               {ICML} 2017, Sydney, NSW, Australia, 6-11 August 2017},
+  series    = {Proceedings of Machine Learning Research},
+  volume    = {70},
+  publisher = {{PMLR}},
+  year      = {2017},
+  url       = {http://proceedings.mlr.press/v70/},
+  timestamp = {Wed, 29 May 2019 08:41:45 +0200},
+  biburl    = {https://dblp.org/rec/conf/icml/2017.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@Article{DBLP:journals/corr/abs-1910-07517,
+  author          = {Noam Yefet and Uri Alon and Eran Yahav},
+  title           = {Adversarial Examples for Models of Code},
+  year            = 2019,
+  volume          = {abs/1910.07517},
+  eprint          = {1910.07517},
+  url             = {http://arxiv.org/abs/1910.07517},
+  journal         = {CoRR},
+  archiveprefix   = {arXiv},
+  timestamp       = {Tue, 22 Oct 2019 18:17:16 +0200},
+  biburl          = {https://dblp.org/rec/journals/corr/abs-1910-07517.bib},
+  bibsource       = {dblp computer science bibliography, https://dblp.org}
+}
+
+
+@InProceedings{DBLP:conf/icse/MalikPP19,
+  author          = {Rabee Sohail Malik and Jibesh Patra and Michael Pradel},
+  title           = {NL2Type: inferring JavaScript function types from natural
+                  language information},
+  year            = 2019,
+  booktitle       = {Proceedings of the 41st International Conference on
+                  Software Engineering, {ICSE} 2019, Montreal, QC, Canada, May
+                  25-31, 2019},
+  pages           = {304-315},
+  doi             = {10.1109/ICSE.2019.00045},
+  url             = {https://doi.org/10.1109/ICSE.2019.00045},
+  crossref        = {DBLP:conf/icse/2019},
+  timestamp       = {Wed, 16 Oct 2019 14:14:49 +0200},
+  biburl          = {https://dblp.org/rec/conf/icse/MalikPP19.bib},
+  bibsource       = {dblp computer science bibliography, https://dblp.org}
+}
+
+@proceedings{DBLP:conf/icse/2019,
+  editor    = {Joanne M. Atlee and
+               Tevfik Bultan and
+               Jon Whittle},
+  title     = {Proceedings of the 41st International Conference on Software Engineering,
+               {ICSE} 2019, Montreal, QC, Canada, May 25-31, 2019},
+  publisher = {{IEEE} / {ACM}},
+  year      = {2019},
+  url       = {https://ieeexplore.ieee.org/xpl/conhome/8790403/proceeding},
+  isbn      = {978-1-7281-0869-8},
+  timestamp = {Wed, 16 Oct 2019 14:14:49 +0200},
+  biburl    = {https://dblp.org/rec/conf/icse/2019.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@InProceedings{DBLP:conf/ilp/PhuaI19,
+  author          = {Yin Jun Phua and Katsumi Inoue},
+  title           = {Learning Logic Programs from Noisy State Transition Data},
+  year            = 2019,
+  booktitle       = {Inductive Logic Programming - 29th International
+                  Conference, {ILP} 2019, Plovdiv, Bulgaria, September 3-5,
+                  2019, Proceedings},
+  pages           = {72-80},
+  doi             = {10.1007/978-3-030-49210-6\_7},
+  url             = {https://doi.org/10.1007/978-3-030-49210-6\_7},
+  crossref        = {DBLP:conf/ilp/2019},
+  timestamp       = {Sat, 06 Jun 2020 15:37:51 +0200},
+  biburl          = {https://dblp.org/rec/conf/ilp/PhuaI19.bib},
+  bibsource       = {dblp computer science bibliography, https://dblp.org}
+}
+
+@proceedings{DBLP:conf/ilp/2019,
+  editor    = {Dimitar Kazakov and
+               Can Erten},
+  title     = {Inductive Logic Programming - 29th International Conference, {ILP}
+               2019, Plovdiv, Bulgaria, September 3-5, 2019, Proceedings},
+  series    = {Lecture Notes in Computer Science},
+  volume    = {11770},
+  publisher = {Springer},
+  year      = {2020},
+  url       = {https://doi.org/10.1007/978-3-030-49210-6},
+  doi       = {10.1007/978-3-030-49210-6},
+  isbn      = {978-3-030-49209-0},
+  timestamp = {Sat, 06 Jun 2020 15:35:09 +0200},
+  biburl    = {https://dblp.org/rec/conf/ilp/2019.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@InProceedings{DBLP:conf/popl/RaychevBVK16,
+  author          = {Veselin Raychev and Pavol Bielik and Martin T. Vechev and
+                  Andreas Krause},
+  title           = {Learning programs from noisy data},
+  year            = 2016,
+  booktitle       = {Proceedings of the 43rd Annual {ACM} {SIGPLAN-SIGACT}
+                  Symposium on Principles of Programming Languages, {POPL} 2016,
+                  St. Petersburg, FL, USA, January 20 - 22, 2016},
+  pages           = {761-774},
+  doi             = {10.1145/2837614.2837671},
+  url             = {https://doi.org/10.1145/2837614.2837671},
+  crossref        = {DBLP:conf/popl/2016},
+  timestamp       = {Tue, 06 Nov 2018 11:07:43 +0100},
+  biburl          = {https://dblp.org/rec/conf/popl/RaychevBVK16.bib},
+  bibsource       = {dblp computer science bibliography, https://dblp.org}
+}
+
+@proceedings{DBLP:conf/popl/2016,
+  editor    = {Rastislav Bod{\'{\i}}k and
+               Rupak Majumdar},
+  title     = {Proceedings of the 43rd Annual {ACM} {SIGPLAN-SIGACT} Symposium on
+               Principles of Programming Languages, {POPL} 2016, St. Petersburg,
+               FL, USA, January 20 - 22, 2016},
+  publisher = {{ACM}},
+  year      = {2016},
+  url       = {http://dl.acm.org/citation.cfm?id=2837614},
+  isbn      = {978-1-4503-3549-2},
+  timestamp = {Wed, 09 Mar 2016 08:11:59 +0100},
+  biburl    = {https://dblp.org/rec/conf/popl/2016.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@Article{DBLP:journals/corr/abs-1912-05097,
+  author          = {Mingzhe Li and Jianrui Pei and Jin He and Kevin Song and
+                  Frank Che and Yongfeng Huang and Chitai Wang},
+  title           = {Using {GGNN} to recommend log statement level},
+  year            = 2019,
+  volume          = {abs/1912.05097},
+  eprint          = {1912.05097},
+  url             = {http://arxiv.org/abs/1912.05097},
+  journal         = {CoRR},
+  archiveprefix   = {arXiv},
+  timestamp       = {Thu, 02 Jan 2020 18:08:18 +0100},
+  biburl          = {https://dblp.org/rec/journals/corr/abs-1912-05097.bib},
+  bibsource       = {dblp computer science bibliography, https://dblp.org}
+}
+
+@InProceedings{DBLP:conf/icml/PiechHNPSG15,
+  author          = {Chris Piech and Jonathan Huang and Andy Nguyen and Mike
+                  Phulsuksombati and Mehran Sahami and Leonidas J. Guibas},
+  title           = {Learning Program Embeddings to Propagate Feedback on
+                  Student Code},
+  year            = 2015,
+  booktitle       = {Proceedings of the 32nd International Conference on Machine
+                  Learning, {ICML} 2015, Lille, France, 6-11 July 2015},
+  pages           = {1093-1102},
+  url             = {http://proceedings.mlr.press/v37/piech15.html},
+  crossref        = {DBLP:conf/icml/2015},
+  timestamp       = {Wed, 29 May 2019 08:41:46 +0200},
+  biburl          = {https://dblp.org/rec/conf/icml/PiechHNPSG15.bib},
+  bibsource       = {dblp computer science bibliography, https://dblp.org}
+}
+
+@proceedings{DBLP:conf/icml/2015,
+  editor    = {Francis R. Bach and
+               David M. Blei},
+  title     = {Proceedings of the 32nd International Conference on Machine Learning,
+               {ICML} 2015, Lille, France, 6-11 July 2015},
+  series    = {{JMLR} Workshop and Conference Proceedings},
+  volume    = {37},
+  publisher = {JMLR.org},
+  year      = {2015},
+  url       = {http://proceedings.mlr.press/v37/},
+  timestamp = {Wed, 29 May 2019 08:41:45 +0200},
+  biburl    = {https://dblp.org/rec/conf/icml/2015.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}

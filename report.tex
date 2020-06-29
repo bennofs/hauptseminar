@@ -9,6 +9,7 @@
 \usepackage{tabularx}
 \usepackage{amsmath}
 \usepackage{makecell}
+\usepackage{placeins}
 
 \setdefaultlanguage{english}
 \usepackage{cleveref}
@@ -74,8 +75,13 @@ The probabilitistic weight of the dependency can then be learned from data, and 
 We will however focus on message passing neural networks here since they are the most popular model found in literature and have successfully been applied to several different tasks (see also \cref{sec:eval}).
 
 \subsection{Message passing neural network}\label{sec:mpnn}
-We use a notation similar to Gilmer et al.~\cite{gilmer_neural_2017}.
-Neural message passing networks start by assigning an initial hidden state $h^0_v$ to each node $v$ in the graph.
+We explain the concept of message passing neural networks following \citet{gilmer_neural_2017}.
+Let $G$ by a directed graph, where edges from $w$ to $v$ have a label represented as $e_{vw}$.
+Two nodes can be connected by multiple edges of different kinds.
+In the application to source code, each edge kind often has an associated backward edge, allowing information to flow in both directions.
+These can just be treated as an additional edge with a label different from the corresponding forward edge.
+
+Message passing neural networks start by assigning an initial hidden state $h^0_v$ to each node $v$ in the graph.
 The initial state is usually computed as an embedding of the features of the node.
 At every timestep, the network then computes a message for each edge using the \textit{message function} $M$.
 The messages of all edges with the same target are aggregated by an \textit{aggregation function} $h$.
@@ -88,6 +94,7 @@ The following two equations describe this process:
   h^{t+1}_{v} & = U(h^{t}_{v}, m^{t+1}) \label{eq:update}
 \end{align}
 
+where $N(v)$ is the set of all nodes $w$ for which there is an edge from $w$ to $v$.
 The steps are repeated for $T$ timesteps. Finally, the overall prediction is computed by applying the readout function to the final hidden states $\{h^{T}_{v}\}$ of all nodes:
 
 \begin{align}
@@ -96,84 +103,260 @@ The steps are repeated for $T$ timesteps. Finally, the overall prediction is com
 
 In this computation $M$, $U$ and $R$ are all learnable differentiable functions.
 
-\begin{figure}
-  \begin{tikzpicture}
-  \end{tikzpicture}
-\end{figure}
-
 \subsection{Applications to source code}\label{sec:app}
-There exist various applications of message passing neural networks to source code.
-
-The application of message passing neural networks to source code has first been described by \citet{allamanis_learning_2018} to infer variable names and detect variable misuse bugs.
-
+\Cref{tbl:mpnn-applications} shows some applications of (variations of) message passing neural networks to source code.
+We will first look at different representations of source code as a graph.
+Then, we describe the concrete variant of message passing neural network used in these applications.
 
 \begin{table*}[t]
   \begin{minipage}{\textwidth}
-    \begin{tabularx}{\textwidth}{llXXXX}
+    \begin{tabularx}{\textwidth}{lXX}
       \toprule
-      Reference                              & $M(h_{v},h_{w},e)$\footnote{$k$ is the edge type (label)} & Aggregation & Update & Readout & Task \\ \midrule
-      \citet{allamanis_learning_2018}        & $A_{e}h_{w} + b_{e}$ & sum & GRU\footnote{gated recurrent unit\cite{cho_learning_2014}} & & \textsc{VarNaming}, \textsc{VarMisuse}  \\
-      \citet{allamanis_typilus_2020}         & $A_{e}h_{w}$ & \makecell{elementwise\\ maximum} & GRU & & type prediction \\
-      \citet{brauckmann_compiler-based_2020} & $A_{e}h_{w} + b_{e}$ & sum & GRU & & OpenCL device mapping, OpenCL thread corsening \\
-      \citet{cummins_programl_2020}          & \makecell{ $A_{type(e)}(h_{w} \bigodot POS(e))$ \\ footnote \footnote{$type(e)$ is the edge type and $POS(e)$ is a sinusodial positional encoding of the argument order. $\bigodot$ is elementwise multiplication.}} & sum & GRU & & graph algorithms, device mapping, algorithm classification \\
-      \citet{fernandes_structured_2020}      & $A_{e}h_{w} + b_{e}$ & sum & GRU & & \textsc{MethodNaming}, \textsc{MethodDoc} \\
-      \citet{hellendoorn_are_2019}           & $A_{e}h_{w} + b_{e}$ & sum & GRU & & \\
-      \citet{hellendoorn_global_2019}        & $A_{e}h_{w} + b_{e}$ & sum & GRU & & GGNN with special readout and initial node rep from RNN\\
-      \citet{li_using_2019}                  & $A_{e}h_{w} + b_{e}$ & sum & GRU & & GGNN from \cite{allamanis_learning_2018} \\
-      \citet{schrouff_inferring_2019}        & $A_{e}h_{w} + b_{e}$ & sum & GRU & & GGNN with(out) master node \\
-      \citet{si_learning_2018}               & [] & & $h^{t+1}_{v} = m^{t+1}_{v}$ & & GNN, not GGNN, badly specified \\
-      \citet{wei_lambdanet_2020}             & custom based on edge type & & $h^{t+1}_{v} = h^{t}_{v} + m^{t+1}_{v}$ & & not GGNN
-
+      Reference                              & Graph & Task \\ \midrule
+      \citet{allamanis_learning_2018}        & enriched AST & \textsc{VarNaming}, \textsc{VarMisuse} \\
+      \citet{allamanis_typilus_2020}         & enriched AST  & predict python type annotations \\
+      \citet{brauckmann_compiler-based_2020} & enriched AST, CDFG+calls+mem & OpenCL device mapping, OpenCL thread corsening \\
+      \citet{cummins_programl_2020}          & IR graph + control-, data- and call-flow & graph algorithms, device mapping, algorithm classification \\
+      \citet{fernandes_structured_2020}      & enriched AST & \textsc{MethodNaming}, \textsc{MethodDoc} \\
+      \citet{hellendoorn_are_2019}           & enriched AST & checking if extracted invariants are valid \\
+      \citet{hellendoorn_global_2019}        & enriched AST & \textsc{VarMisuse} \\
+      \citet{li_using_2019}                  & enriched AST & predict log level for log statements \\
+      \citet{schrouff_inferring_2019}        & AST + reference/traverse & predict javascript type annotations \\
+      \citet{si_learning_2018}               & SSA-CFG with AST + variable-linking & embed semantics for loop invariant prediction \\
+      \citet{wei_lambdanet_2020}             & type variables with relationships & predict python type annotations \\
+      \bottomrule
     \end{tabularx}
   \end{minipage}
 
-  \caption{Different specializations of message passing neural networks to source code tasks}\label{fig:mpnn-applications}
+  \caption{Different applications of message passing neural networks to source code tasks}\label{tbl:mpnn-applications}
 \end{table*}
 
+\subsubsection{AST representations}
+A syntatic way to represent source code as a graph is the form of an abstract syntax tree (AST).
+This representation was first introduced by \citet{allamanis_learning_2018} and many further works are based on variations \cite{allamanis_typilus_2020,brauckmann_compiler-based_2020,fernandes_structured_2020,hellendoorn_global_2019,hellendoorn_are_2019,li_using_2019,schrouff_inferring_2019}.
+Semantic information is added to the AST in the form of additional edge types.
+An overview of the edge types found in these works is given in \cref{tbl:ast-edges}.
+These edges add data flow and control flow information for variables to the graph.
+Since in practice the message passing network only uses a small number of timesteps, these additional edges are useful to capture dependencies that can potentially be far away in the graph.
+Allamanis et al.\ found that these semantic edges greatly increase the performance.
+\citet{schrouff_inferring_2019} also use an AST representation, but group their 96 relationship types into only two categories: AST relation like child/parent and reference/traverse which are a kind of semantic edge.
+
+Because each edge type requires its own parameters for the message generation step of the model, restricting the edge types can improve training time.
+Which edges are useful however depends on the task.
+In an ablation study, \citet{allamanis_learning_2018} found that restricting the edges to semantic edges (removing \textsc{NextToken} and \textsc{Child} edges) affected the performance on the \textsc{VarMisuse} task much more than for the \textsc{VarNaming} task.
+
+\begin{table*}[t]
+  \begin{tabularx}{\textwidth}{lXl}
+    \toprule
+    Edge & Edge between \ldots \\
+    \midrule
+    \textsc{NextToken} & two consecutive token nodes or sub-token nodes  \\
+    \textsc{InToken} & sub-tokens and the AST token node \\
+    \textsc{NextLexicalUse} & lexical uses of the same variable (independent of data flow) \\
+    \textsc{Child} & AST syntax nodes and their children \\
+    \textsc{NextMayUse} & variable tokens and next potential uses of that variable \\
+    \textsc{AssignedFrom} & left hand side of an assignment and right hand side \\
+    \textsc{ComputedFrom} & variable appearing in the LHS of an assignment and all variables appearing in the RHS\\
+    \textsc{OccurrenceOf} & tokens referencing a symbol and nodes that bind this symbol \\
+    \textsc{FormalArgName} & arguments in method calls and formal parameters in the signature \\
+    \textsc{LastWrite} & syntax node at which a variable was written to and variable token \\
+    \textsc{LastRead} & syntax node at which a variable was read from and variable token \\
+    \textsc{ReturnsTo} & return token and the method declaration \\
+    \textsc{GuardedBy} & variable to enclosing guard expression that must be true for this statement to be executed and uses this variable \\
+    \textsc{GuardedByNegation} & variable to enclosing guard expression that must be false for this statement to be executed and uses this variable \\
+    \bottomrule
+  \end{tabularx}
+  \caption{Edge types used to enrich AST graphs}\label{tbl:ast-edges}
+\end{table*}
+
+\subsubsection{CFG representations}
+AST representations include information about syntax that may not be relevant for semantics, such as dead code.
+By basing their representation on a ontrol flow graph (CFG), CFG representations eliminate some of this ``noise''.
+The tradeoff is that some of the superfluous information might still communicate useful information.
+For example, the order of statements in a control flow graph will be different to the source order, so this information can no longer be used by the model.
+\citet{brauckmann_compiler-based_2020} compare both representations on the same tasks and find that there is no single best representation.
+They base their graph on a CFG extracted from the LLVM intermediate representation, so the nodes in the graph are LLVM IR instructions.
+A similar approach is followed by \citet{cummins_programl_2020}.
+They also construct a control flow graph and enrich it with data flow and call flow.
+In contrast to the work of Brauckmann et al.\, they include edge positions which differentiate the first operand/branch target from the second and so on.
+But nodes do not always need to be IR statements in a CFG representation.
+\citet{si_learning_2018} describe a variant where they first construct a control flow graph over statements over the SSA (static single assignment) form but then use the AST representation of each statement as nodes.
+Since the SSA form splits a single variable in potentially many differently named ones, they introduce variable linking which connects all instances of a single variable to a node named after the original name.
+
+\subsubsection{Application-specific graphs}
+A third possibility to represent programs as graphs is shown by \citet{wei_lambdanet_2020}.
+They construct a type inference graph, which only contains predicates believed to be relevant for the type inference problem, such as subtype and usage edges.
+Nodes in their graph represent types that are known or need to be assigned.
+In contrast to the previous representation methods, this requires more thought about which edges to include for a given application and is thus a less general method.
+
+\subsubsection{Propagation models}
+Most of the applications listed in \cref{tbl:mpnn-applications} are based on a special kind of message passing neural network named Gated Graph Neural Network (GGNN)~\cite{li_gated_2017}.
+These networks use a simple linear layer on the source node as the message function (with different trainable parameters for each edge kind) and the gated recurrent unit (GRU)~\cite{cho_properties_2014} as the node update function.
+For message aggregation, GGNNs sum all messages arriving at a single node.
+
+There are only two models that are not based on the GGNN variant.
+\citet{wei_lambdanet_2020} use a different model where they define specialized learnable message functions for each of their edge types.
+Since their graph is a hypergraph, they specify how to generate messages for each argument of a hyperedge.
+The specialized message functions are mostly based on multilayer feedforward networks.
+For aggregation and updating, they use a variant of the attentation based aggregation operator proposed in graph attentation networks~\cite{velickovic_graph_2018}.
+
+\citet{si_learning_2018} also use a linear function to compute messages for each edges.
+Messages are aggregated separately for each edge type by summing and applying a nonlinear activation function.
+The update is performed by transforming each aggregated result by a linear function followed by a nonlinear activation function.
+Interesting to note here is that the update function is not based on the hidden state of the current node.
+This means that the model cannot directly propagate information from a node to itself in one step.
+
+The remaining models either use the GGNN model directly \cite{allamanis_learning_2018,brauckmann_compiler-based_2020,fernandes_structured_2020,hellendoorn_are_2019,hellendoorn_global_2019,li_using_2019,schrouff_inferring_2019} or apply slight changes to the message or aggregation function.
+All models use the GRU unit as update function.
+For type prediction, \citet{allamanis_typilus_2020} use the elementwise maximum instead of sum for aggregation, as it lead to better results.
+Intuitively, the elementwise maximum corresponds to a meet-like operation on a lattice defined over $\mathbb{R}^{N}$.
+\citet{cummins_programl_2020} change the message function to add a sinusodial positional encoding of the edge position to the hidden state of the source node before applying a linear function.
+All other models in \cref{tbl:mpnn-applications} use GGNN unmodified.
+
+\subsubsection{Initial node embedding and readout}
+Before message propagation, an initial node embedding must be computed for all nodes in the graph.
+These initial node embeddings are commonly computed from a set of features of the nodes.
+For AST representations, these features include the ast node type (corresponding to the grammar symbol represented by this node), node properties (a BinaryExpression ast node might have a node property specifying the operator) and node value (for literal and terminal nodes)~\cite{allamanis_learning_2018,schrouff_inferring_2019,brauckmann_compiler-based_2020}.
+In statically typed languages, it is also possible to include types of variables as features~\cite{allamanis_learning_2018}.
+All features are then converted to vectors using an embedding layer.
+For the terminal AST nodes which correspond the the source code tokens, an alternative is to use embeddings generated by a sequence neural network over the original token sequence.
+This approach is followed by \citet{fernandes_structured_2020} and \citet{hellendoorn_global_2019}.
+For graphs containing IR instructions, the space of possible node values is large due to the possible operand values.
+\citet{cummins_programl_2020} therefore construct the embedding by applying an embedding layer to the normalized instruction using using inst2vec~\cite{ben-nun_neural_2018}.
+
+After message propagation, the resulting graph needs to be interpreted in the context of the concrete application.
+Predictions about properties of single nodes can directly be computed from the hidden state of that node~\cite{li_using_2019,allamanis_typilus_2020}.
+To compute a graph-level vector, a weighted average of a projection of each hidden state can be computed \cite{brauckmann_compiler-based_2020,fernandes_structured_2020}.
+Both the weight (attention) and the projection are learnable functions that take the hidden state and in some variants~\cite{cummins_programl_2020} also the initial embedding of the node as an input.
+\citet{fernandes_structured_2020} combine this graph vector with the sequence embedding by another linear layer.
+Instead of computing the average over all nodes of the graph, \citet{hellendoorn_are_2019} only average the nodes that appear in the invariant.
+A similar approach is followed by \citet{allamanis_learning_2018}, where they average over all nodes corresponding the slots of the variable whose name they want to predict.
+\citet{si_learning_2018} keep all embeddings as external memory which can be queried by another model through an attention-based mechanism.
+
 \section{Behaviour-based model}
-The defining property of source code is that it is executable.
-But the graph based models do not capture this aspect of source code: they only rely on static information.
-The naturalness hypothesis provides a justification for this choice, as the communicative intent of the programmer is likely to be more clear in the source code form than in the dynamic behaviour of the program.
-Yet, depending on the task, the runtime behaviour of a program might also provide valueable patterns that can be learned by a suitable model.
-For an example, consider the algorithm classification problem presented in \cref{ex:syntax-semantics}.
-The
+Behaviour-based models make inferences about properties of source code by learning from data gathered from its runtime behaviour.
+They provide an interesting alternative to the graph-based models in applications that focus on how the code behaves (semantics) instead of how it was written (syntax).
+These models should therefore be more resistant to syntactic modifications, which we explore in more detail in the evaluation.
 
-\begin{figure}
-  \caption{}\label{ex:syntax-semantics}
-\end{figure}
-
-
-Because the code is much closer to the programmer, statistical patterns that arise from the communicative aspect of code
-In this section, we explore models that learn from the dynamic behaviour of source code.
-
-This learning task has similarities to the field of program synthesis, where the task is to infer a program
-
+\begin{table*}[t]
+  \begin{tabularx}{\textwidth}{lX}
+    \toprule
+    Reference & Description \\
+    \midrule
+    \citet{yao_learning_2020} & Extract non-linear loop invariants from learned model of loop behaviour \\
+    \citet{henkel_code_2018} & Generate function vectors from usage contexts \\
+    \citet{wang_learning_2019} & Learn representation of program semantics from execution trace \\
+    \citet{padhi_data-driven_2016} & Learn preconditions from program traces \\
+    \citet{li_gated_2017} & Learn separation logic formulas for heap objects \\
+    \citet{brockschmidt_learning_2017} & Learning shape analysis \\
+    \citet{piech_learning_2015} & ... \\
+    \citet{paasen_execution_2016} & ... \\
+    \bottomrule
+  \end{tabularx}
+\end{table*}
 
 \section{Evaluation}\label{sec:eval}
 
-Unfortunately, comparision between different architectures is difficult, since they are often applied to different tasks.
-Even when the tasks are similar (for example, both models applied to infer types),
-sometimes the results are not comparable because they are evaluated on different datasets.
-These factors prevent a clear comparision between different approaches.
+We have seen two different approaches to capture the meaning of source code with machine learning.
+In this section, we attempt to look at how well these two approaches perform.
+Unfortunately, comparision between the different architectures is difficult, since they are often applied to different tasks.
+Even when the tasks are similar (for example, both models applied to infer types), sometimes the results are not comparable because they are evaluated on different datasets.
+These factors prevent a clear comparision.
+This issue has been noted before by \citet[p. 71]{bourgeois_learning_2019}.
+Therefore, we instead will look at the results for some specific tasks were we find some overlap between different papers and note interesting observations for each task where applicable.
 
-Instead of doing a full quantitative comparision of all models, we will instead focus on a subset of tasks for which there are comparisions of different architectures:
+\begin{table*}[t]
+  \begin{tabularx}{\textwidth}{XXX}
+    \toprule
+    Name & Language & Model \\
+    \midrule
+    JSNice \cite{raychev_predicting_2019} & JavaScript & \\
+    DeepTyper \cite{hellendoorn_deep_2018} & & \\
+    Nl2Type \cite{malik_nl2type_2019} & JavaScript/TypeScript & \\
+    Typilus \cite{allamanis_typilus_2020} & & \\
+    TypeWriter \cite{pradel_typewriter_2020} & & \\
+    LambdaNet \cite{wei_lambdanet_2020} & & \\
+    OptTyper \cite{pandi_opttyper_2020} & & \\
+    JS-GNN \cite{schrouff_inferring_2019} & & \\
 
-\begin{itemize}
-  \item type prediction for dynamically typed code
-  \item invariant inference
-  \item method summarization
-\end{itemize}
+    \\
+    \bottomrule
+
+  \end{tabularx}
+  \caption{Implementations for type prediction}\label{tbl:app-type-prediction}
+\end{table*}
 
 \subsection{Type prediction}
+Predicing the types of arguments, functions and variables in dynamically typed languages is a hard task to solve statically.
+Various methods based on machine learning have been described for this problem in literature.
+An overview is given in \cref{tbl:app-type-prediction}.
+
+
+\subsection{Method naming/classification}
+In this category, we look at models solving the task of assigning a set of labels or names to methods.
+The set of tasks included in method naming and classification is quite broad.
+However, all these tasks require deriving a form of semantic understanding of a single method, so it is useful to consider them as a single group.
+
+\begin{table*}[t]
+  \begin{tabularx}{\textwidth}{XllX}
+    \toprule
+    Reference                                  & Task & Model & Results \\
+    \midrule
+    code2seq~\cite{alon_code2seq_2019}         & \textsc{MethodNaming} & AST paths with attention
+    & {
+      Prec/Recall/F1 \newline
+      Java-small: 50.64 37.40 43.02 \newline
+      Java-med: 61.24 47.07 53.23 \newline
+      Java-large: 64.03 55.02 59.19 \newline
+    } \\
+    NCC~\cite{ben-nun_neural_2018} & algorithm classification & skip-gram on XFG
+    & {
+      dataset: POJ-104 \newline
+      accurracy: 94.83
+    } \\
+    structured neural \newline summarization~\cite{fernandes_structured_2020} & \textsc{MethodNaming} & code2seq, \textsc{BiLSTM+GNN $\to$ LSTM+POINTER}
+    & {
+      java-small: F1 43.0 51.4 \newline
+      c-sharp: 63.4
+    } \\
+    \textsc{DyPro}~\cite{wang_learning_2019}   & program classification & TreeLSTM, GGNN, \textsc{DyPro}
+    & {
+      handpicked problems from popular online coding platform \newline
+      F1: 0.61 0.66 0.78
+    } \\
+    \textsc{DyPro}~\cite{wang_learning_2019}   & detect loopinv & TreeLSTM, GGNN, \textsc{DyPro}
+    & {
+      same dataset as for prog classify, daikon generated loopinvs (checked via static prover) \newline
+      F1: 0.47 0.50 0.71
+    } \\
+    \textsc{LiGeR}~\cite{wang_learning_2019-1} & \textsc{MethodNaming} & \textsc{code2seq}, \textsc{LiGer}
+    & {
+      custom (algorithmic) dataset from interviews \newline
+    } \\
+    \textsc{LiGeR}~\cite{wang_learning_2019-1} & \textsc{CoSet} & \textsc{code2vec}, \textsc{GGNN}, \textsc{DyPro}, \textsc{LiGer}
+    & {
+      F1: 0.68 0.70 0.81 0.85
+    } \\
+    \textsc{CoSet}~\cite{wang_coset_2019}      & \textsc{CoSet} & TreeLSTM, APNN, GGNN, \textsc{DyPro} & F1: 0.63 0.67 0.73 0.83 \\
+
+    \bottomrule
+  \end{tabularx}
+  \caption{Implementations for method summarization/classification}
+\end{table*}
+
+There are many different variants of tasks that fall into the category of method summarization.
+We use this broad category to allow for
+Method summarization is the task of
+
 
 \subsection{Invariant inference}
+Inv
 
-\subsection{Method summarization}
-
+\subsection{Adversarial research}
 
 \section{Conclusion}
 
-\Blindtext
+\FloatBarrier
 
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{zotero}
