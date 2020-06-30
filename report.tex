@@ -10,6 +10,7 @@
 \usepackage{amsmath}
 \usepackage{makecell}
 \usepackage{placeins}
+\usepackage{booktabs}
 
 \setdefaultlanguage{english}
 \usepackage{cleveref}
@@ -65,6 +66,7 @@ The advantage of this method is that it can use models
 Graphs are a natural representation for source code, due to its highly interlinked structure.
 In this section, we will thus look at models that can learn from the graph structure.
 A flexible model for this task is the message passing neural network, introduced by \citet{gilmer_neural_2017}.
+Message passing neural networks are a variant of graph neural networks.
 We will first explain the general concept of message passing neural networks in \cref{sec:mpnn}.
 We then compare different concrete instances of this model applied to source code in \cref{sec:app}.
 
@@ -263,96 +265,107 @@ Unfortunately, comparision between the different architectures is difficult, sin
 Even when the tasks are similar (for example, both models applied to infer types), sometimes the results are not comparable because they are evaluated on different datasets.
 These factors prevent a clear comparision.
 This issue has been noted before by \citet[p. 71]{bourgeois_learning_2019}.
-Therefore, we instead will look at the results for some specific tasks were we find some overlap between different papers and note interesting observations for each task where applicable.
-
-\begin{table*}[t]
-  \begin{tabularx}{\textwidth}{XXX}
-    \toprule
-    Name & Language & Model \\
-    \midrule
-    JSNice \cite{raychev_predicting_2019} & JavaScript & \\
-    DeepTyper \cite{hellendoorn_deep_2018} & & \\
-    Nl2Type \cite{malik_nl2type_2019} & JavaScript/TypeScript & \\
-    Typilus \cite{allamanis_typilus_2020} & & \\
-    TypeWriter \cite{pradel_typewriter_2020} & & \\
-    LambdaNet \cite{wei_lambdanet_2020} & & \\
-    OptTyper \cite{pandi_opttyper_2020} & & \\
-    JS-GNN \cite{schrouff_inferring_2019} & & \\
-
-    \\
-    \bottomrule
-
-  \end{tabularx}
-  \caption{Implementations for type prediction}\label{tbl:app-type-prediction}
-\end{table*}
-
-\subsection{Type prediction}
-Predicing the types of arguments, functions and variables in dynamically typed languages is a hard task to solve statically.
-Various methods based on machine learning have been described for this problem in literature.
-An overview is given in \cref{tbl:app-type-prediction}.
-
+Therefore, we instead will look at the results for some specific tasks were we find some overlap between different papers and note interesting observations and research questions for each task where applicable.
 
 \subsection{Method naming/classification}
 In this category, we look at models solving the task of assigning a set of labels or names to methods.
-The set of tasks included in method naming and classification is quite broad.
-However, all these tasks require deriving a form of semantic understanding of a single method, so it is useful to consider them as a single group.
+We consider two slightly different tasks: \textsc{MethodNaming} and program classification.
+\textsc{MethodNaming} requires the model to predict the name of a method from its body.
+This task is often used to evaluated the accurracy of embeddings, since gathering data for it is easy (take a dataset with methods and remove the names) and the name of a method provides a succint description of its meaning.
+Program classification is a related task that instead requires classifying short programs according to the implemented algorithm or solved task.
+The implementations for both tasks considered in this section are shown in \cref{tab:app-method-summarization}.
+Only results relevant to the comparision between graph and behavioural approaches are shown.
+
+A baseline for \textsc{MethodNaming} is given by a non-graph based model by \citet{alon_code2seq_2019}.
+They train a model that learns to embed and aggregate paths through the AST of the method automatically.
+In contrast to their previous code2vec \cite{code2vec} model, code2seq uses a sequence based decoder based on this embedding.
+The model is evaluated on a dataset of 11 large java projects (java-small \cite{allamanis_convolutional_2016}) and two new datasets consisting of top-starred java projects from GitHub (java-medium, java-large).
+\citet{fernandes_structured_2020} improve on this result by using graph neural networks for the encoding step.
+Their best result is a combination of a gated graph neural network combined with sequence neural networks for encoding, combined with a new decoder (an LSTM network with a pointer network-style copying mechanism).
+An interesting result for this comparision is that they find networks augmented with graph neural networks to outperform baseline methods which do not use any graph networks.
+There is also one implementation of a technique based on concrete and symbolic execution traces for the method naming tasks by \citet{wang_learning_2019-1}.
+However, the authors evaluate their model on a different dataset, so comparision to state of the art is difficult.
+The motiviation they give for using their own dataset is that it is more complex by using algorithmically focused methods from company interviews, in contrast to the java dataset which contains a lot of simple functions such as getters and setters.
+They retrain code2seq for this dataset, reporting lower results, which suggests the hypothesis that the dataset is more complex.
+It would be interesting to see how the model by \citet{fernandes_structured_2020} performs in comparision on this dataset, and how well their model performs on the java-small and java-large datasets.
+
+The \textsc{LiGeR} model is an extension that adds support for symbolic traces to an earlier model called \textsc{DyPro} by the same authors which was also behaviour-based.
+Both of these models have also been tested for the challenge of program classification, which is a more natural task for behaviour based models due to being inherently tied to the semantics of the program.
+The evaluations for this model are based on a custom dataset known as \textsc{CoSet}~\cite{wang_coset_2019} which consists of hand-labelled programs from an online coding competition.
+The results show that the behaviour-based methods (\textsc{DyPro}, \textsc{LiGeR}) significantly outperform the gated graph neural network variant.
+However, the exact AST graph representation used for the GGNN variant was left unspecified in this evaluation.
+That the graph representation matters is shown by \citet{cummins_programl_2020}.
+Their graph representation is flow, position and value sensitive, and in the evaluation they show that this graph representation leads to improved classification rates using a GGNN on the POJ-104 dataset.
+The POJ-104 dataset contains implementations of 104 different algorithms submitted to a judge system.
+They compare their result to prior work by \citet{ben-nun_neural_2018} which didn't use graph neural networks and also used a graph representation that did not preserve the node positional order.
+This shows that the learning from structure that graph neural networks provide is useful.
+The question that remains is how well the \textsc{LiGeR} approach would perform on this dataset.
+
+In summary, we can observe that graph-based representations provide useful signal for both tasks, improving over prior sequence based implementations.
+There are some indications that behavioural approaches might have an advantage when the dataset contains many algorithmic-heavy functions but a direct comparision is not possible due to different implementations and datasets.
 
 \begin{table*}[t]
-  \begin{tabularx}{\textwidth}{XllX}
+  \begin{tabularx}{\textwidth}{p{10em}lp{12em}X}
     \toprule
-    Reference                                  & Task & Model & Results \\
+    Reference                                  & Task (Metric) & Dataset & Results (\textit{model} score) \\
     \midrule
-    code2seq~\cite{alon_code2seq_2019}         & \textsc{MethodNaming} & AST paths with attention
-    & {
-      Prec/Recall/F1 \newline
-      Java-small: 50.64 37.40 43.02 \newline
-      Java-med: 61.24 47.07 53.23 \newline
-      Java-large: 64.03 55.02 59.19 \newline
-    } \\
-    NCC~\cite{ben-nun_neural_2018} & algorithm classification & skip-gram on XFG
-    & {
-      dataset: POJ-104 \newline
-      accurracy: 94.83
-    } \\
-    structured neural \newline summarization~\cite{fernandes_structured_2020} & \textsc{MethodNaming} & code2seq, \textsc{BiLSTM+GNN $\to$ LSTM+POINTER}
-    & {
-      java-small: F1 43.0 51.4 \newline
-      c-sharp: 63.4
-    } \\
-    \textsc{DyPro}~\cite{wang_learning_2019}   & program classification & TreeLSTM, GGNN, \textsc{DyPro}
-    & {
-      handpicked problems from popular online coding platform \newline
-      F1: 0.61 0.66 0.78
-    } \\
-    \textsc{DyPro}~\cite{wang_learning_2019}   & detect loopinv & TreeLSTM, GGNN, \textsc{DyPro}
-    & {
-      same dataset as for prog classify, daikon generated loopinvs (checked via static prover) \newline
-      F1: 0.47 0.50 0.71
-    } \\
-    \textsc{LiGeR}~\cite{wang_learning_2019-1} & \textsc{MethodNaming} & \textsc{code2seq}, \textsc{LiGer}
-    & {
-      custom (algorithmic) dataset from interviews \newline
-    } \\
-    \textsc{LiGeR}~\cite{wang_learning_2019-1} & \textsc{CoSet} & \textsc{code2vec}, \textsc{GGNN}, \textsc{DyPro}, \textsc{LiGer}
-    & {
-      F1: 0.68 0.70 0.81 0.85
-    } \\
-    \textsc{CoSet}~\cite{wang_coset_2019}      & \textsc{CoSet} & TreeLSTM, APNN, GGNN, \textsc{DyPro} & F1: 0.63 0.67 0.73 0.83 \\
-
+    code2seq~\cite{alon_code2seq_2019}         & \textsc{MethodNaming} (F1)
+      & java-small & \textit{code2vec} 18.62\newline \textit{code2seq} 43.02\newline \textit{TreeLSTM} 35.46 \\
+    code2seq~\cite{alon_code2seq_2019}         & \textsc{MethodNaming} (F1)
+      & java-large & \textit{code2vec} 42.73\newline \textit{code2seq} 59.19\newline \textit{TreeLSTM} 53.63 \\
+   structured neural \newline summarization~\cite{fernandes_structured_2020} & \textsc{MethodNaming} (F1) & java-small & \textit{\textsc{BiLSTM+GNN $\to$ LSTM+POINTER}} 51.4 \textit{code2seq} 43.0 \\
+   \textsc{LiGeR}~\cite{wang_learning_2019-1} & \textsc{MethodNaming} (F1) & named methods from algorithmic focused company interviews &  \textit{code2seq} 0.39 \textit{\textsc{LiGer}} 0.57 \\
+   \textsc{LiGeR}~\cite{wang_learning_2019-1} & program classification (F1) & \textsc{CoSet}~\cite{wang_coset_2019} &  \textit{code2vec} 0.68 \textit{GGNN} 0.70 \newline \textit{\textsc{DyPro}} 0.81 \textit{\textsc{LiGer}} 0.85 \\
+    \textsc{DyPro}~\cite{wang_learning_2019}   & program classification (F1) & handpicked problems from popular online coding platforms & \textit{TreeLSTM} 0.61 \textit{GGNN} 0.66 \textit{\textsc{DyPro}} 0.78 \\
+    NCC~\cite{ben-nun_neural_2018} & program classification (accurracy) & POJ-104 & \textit{NCC} 94.83 \textit{TBCNN} 94.0 \\
+    \textsc{ProGraML} & program classification (accurracy) & POJ-104 & \textit{NCC} 94.83\newline \textit{XFG-GGNN} 95.71\newline \textit{GGNN-s} 96.13 \textit{GGNN} 96.22 \newline \textit{Transformer} 96.67 \\
     \bottomrule
   \end{tabularx}
-  \caption{Implementations for method summarization/classification}
+  \caption{Implementations for method summarization/classification}\label{tab:app-method-summarization}
 \end{table*}
 
-There are many different variants of tasks that fall into the category of method summarization.
-We use this broad category to allow for
-Method summarization is the task of
-
-
 \subsection{Invariant inference}
-Inv
+Invariant inference is a task from program verification.
+An invariant is a property that is preserved by a certain code sequence whenever it is executed.
+One use case for invariants is proving statements about loops.
+Because the invariant is preserved no matter how many times to loop body is executed, it allows reasoning about the state after the loop without explictly considering the number of iterations.
+Automatic loop invariant inference is thus an important problem for program verification.
 
-\subsection{Adversarial research}
+Because the task requires inferring correct invariants, a natural choice is to apply a formal checker to the candidate invariants predicted by the model.
+The checker can also return additional counter examples to improve the prediction.
+This iterative process is known as counterexample guided inductive synthesis (CeGIS \cite{solar-lezama_combinatorial_2006}).
+This approach is followed by \citet{si_learning_2018}, where they use graph based model to convert the program to a structural external memory.
+It then uses this external memory in a reinforcment-based learning process interacting with the formal checker.
+The model can solve 106 of 133 benchmark programs compared to 100 solved by the best state of the art algorithm, but only if given a larger timeout than in the original competition.
+We can see from this result that graph-based embeddings are useful to predict loop invariants.
+They also perform an ablation study with an LSTM instead of the graph neural network, showing that the LSTM-variant can solve 13 fewer instances.
+This is supported by work of \citet{hellendoorn_are_2019}, where they use a gated graph neural network to reduce the false positive rate of invariants extracted by the dynamic analysis tool Daikon~\cite{ernst_daikon_2007}.
+
+Behavioural based models should be well suited to this problem, since loop invariants essentially require fitting formulas that hold over all possible runtime traces.
+And indeed, as demonstrated by \citet{yao_learning_2020}, fitting a model (gated continous logic networks) to the traces and then extracting the formula from that model can perform well, solving all but 9 of the 133 problems in the benchmark set of \citet{si_learning_2018}.
+The remaining 9 problems are claimed to be theoretically unsolvable.
+
+The gated continous logic network by \citet{yao_learning_2020} is trained for each single program separately, learning to represent only the behaviour of that program.
+In contrast, \citet{wang_learning_2019} show a different approach where they train a single generic model to embed program traces, and apply this model to the task of verifying whether an invariant for a loop is valid or not.
+They evaluate their approach on a dataset generated by formally checking invariants produced from Daikon to obtain positive examples and add negative examples based on mutations of those.
+In both accurracy and F1-score, the model beats a similar model trained using a gated graph neural network and one using a TreeLSTM.
+They do however simply use the hidden state of the root node of the AST to extract a single embedding from the GGNN, and leave the concrete edges they used in their graph representation of code unspecified.
+It would be interesting to see the results for the GGNN for on an enriched AST, where the embedding is extracted by averaging the hidden state of the nodes which are present in the invariant, as in \citet{hellendoorn_are_2019}.
+
+In general, there are still not enough comparable works on predicting loop invariants with different models to reach a definite answer on which model is better.
+While both architectures capture enough information to be useful predictors for invariants, they are evaluated in different settings (verifying invariants vs generating) and on different datasets.
+A possible future research question could be to evaluate them in a common setting, to obtain insights into how well the different program representations perform.
+
+\subsection{Model robustness}
+Models differ in their robustness to input changes, like refactorings that change the code but should not change the model prediction (in some applications).
+Behaviour models for example are by design unaffected by syntax changes that do not affect semantics, while they might have trouble with different algorithms that are closely related in implementation.
+Graph-based models should be able to capture these implementation similars better, but they are likely to be more sensitive to syntax changes.
+
+An interesting line of work to understand the robustness of different models is exploring adversarial examples.
+Adversarial examples are constructed by modifying the input to the model in order to force it to predict certain outputs.
+By exploring the sucessful and unsuccessful modifications, we can then make observations about what parts of the input are important for the model to make its prediction.
+
+
 
 \section{Conclusion}
 
