@@ -250,7 +250,7 @@ We study this problem for models of source code, where we want the network to be
 (1) We define a powerful adversary that can employ sequences of parametric, semantics-preserving program transformations;
 (2) we show how to perform adversarial training to learn models robust to such adversaries;
 (3) we conduct an evaluation on different languages and architectures, demonstrating significant quantitative gains in robustness.
-*** concept of k-robustness, define program transformations with holes which are then gradient optimized (as in bielik et al)
+*** concept of k-robustness, define program transformations with holes which are then gradient optimized (as in Yefet et al)
 *** adversarial training improves robustness more for seq2seq than for code2seq => maybe code2seq already includes certain "robustness" by modeling assumption?
 *** seq2seq can be better than code2seq in adversarial setting
 *** compared models: seq2seq and code2seq
@@ -261,7 +261,7 @@ With the rise of machine learning, there is a great deal of interest in treating
 *** evaluation focuses on functions that are related in usage patterns (analogies)
 *** analogy examples: alloc/free, lock/unlock, store16/store32
 *** traces are biased towards start of function (if we think of function as tree)
-*** dataflow appears to be quite important
+*** dataflow appears to be quite important (if they remove dataflow abstractions, performance degrades)
 *** study error code prediction, but evaluation poor (only accuracy, top3, no statistical baseline)
 *** encodes "behaviour" of function with respect to how they are called, not how they are implemented
 ** [[file:ref.bib::DBLP:conf/pldi/AllamanisBDG20][Allamanis et al. 2020: Typilus: neural type hints]] :static:graph:representation:
@@ -349,6 +349,24 @@ With the recent success of embeddings in natural language processing, research h
 *** propagate messages only in intervals of graph, then later merge intervals and so on
 *** explain basics of model pretty well
 *** evaluate on varmisuse, methodnaming, null pointer detection
+** [[file:ref.bib::DBLP:journals/corr/LiTBZ15][Li et al. 2016: Gated Graph Sequence Neural Networks]]
+*** approaches to for ml on graphs: custom features, graph kernels, random walks on graphs, learn feats on graphs
+*** contribution: gnn that outputs sequences
+*** application: babi + graph algorithms, separation logic
+*** introduce the notion of limited timesteps and GRU as update func
+previously, GNNs were ran until convergence -> no backprop through time was necessary, because backprop could be run on converged state
+limited sharing of information, since propagation must be a contraction map
+allows for "init state" (if run until convergence, init state is not necessary)
+*** graph-level output: average with attention
+*** sequence output: use two GGNN, first for initial state, second to step to "next" state for seq output
+*** application: separation logic predicates for heap variables
+*** prog representation: heap graph of program state (pointers become edges, nodes are memory locations)
+*** restrict invariants to trees / lists / none
+*** use GGNN to select nodes in algorithm and perform graph-level classification
+*** discuss related work about GNN/graph ML
+** [[file:ref.bib::DBLP:conf/sas/BrockschmidtCKK17][Brockschmidt et al. 2017: Learning Shape Analysis]]
+*** treat separation logic formula prediction problem as classification (grammar production, cur state)
+*** manually extracted features from graph used as input
 ** TODO [[file:ref.bib::DBLP:conf/sigsoft/HellendoornBBA18][Hellendoorn et al. 2018: Deep learning type inference]]
 ***
 ** TODO [[file:ref.bib::DBLP:conf/icml/CvitkovicSA19][Cvitkovic et al. 2019: Open Vocabulary Learning on Source Code with a Graph-Structured Cache]]

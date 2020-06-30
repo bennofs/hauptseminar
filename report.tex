@@ -11,6 +11,8 @@
 \usepackage{makecell}
 \usepackage{placeins}
 \usepackage{booktabs}
+\usepackage{listings}
+\usepackage{subcaption}
 
 \setdefaultlanguage{english}
 \usepackage{cleveref}
@@ -25,13 +27,17 @@
 \email{benno.fuenfstueck@tu-dresden.de}
 
 \begin{abstract}
- 
+  Applying machine learning to detect patterns in programs requires finding a suitable form to input these programs into models.
+  In this work, we look into two recently explored directions which do not require manually feature engineering: using the graph structure of programs and using execution traces.
+  Both representations are proposed for different reasons: graph-based models can capture the syntatical properties of programs well and perform simple reasoning on them, while execution trace models are closer to program semantics.
+  We explain applications of both models and then compare them on a set of tasks.
+  We find that although both models are used for similar applications, different datasets make it hard to compare them.
+  More research is needed to better explain the strengths of each model.
 \end{abstract}
 
 \maketitle
 
 \section{Introduction}
-
 Many tools that operate on source code require a form of program analysis.
 This includes compilers needing to understand program semantics for optimization,
 static analyzers designed to prevent bugs in programs
@@ -49,18 +55,16 @@ For example, identifier names are not choosen randomly, but instead based on the
 This suggests using machine learning models for code.
 
 A straightforward method then is to take models that have proven successful in natural language processing and apply them to source code.
-Various applications of this pattern have been described in the literature \cite{ahmad_transformer-based_2020}
-
+Various applications of this pattern have been described in the literature \cite{ahmad_transformer-based_2020,malik_nl2type_2019,alon_code2vec_2019,hellendoorn_are_2017}.
 The advantage of this method is that models working on sequences are well understood.
 Additionally, since the order of tokens is preserved, the models can also learn from that information.
+But the disadvantage is that these models generally are not well suited to deal with long-range dependencies such as those found when referring to variables and other structures that might be far away in the token representation of source code.
 
-
-
-Taking successful models from the field of natural language processing, many models are based on the tokens of the source code directly.
-
-The advantage of this method is that it can use models
-
-
+For this reason, new variants of representing programs as input to machine learning models have been explored.
+Here, we will focus on two variants: graph-based models that rely on the graph structure of source code and behaviour-based models that make use of the executability of source code to find patterns in data gathered from execution traces.
+First, we give a description of both models and its application to computer programs.
+Then, we compare them on two tasks (method naming/classification and invariant inference).
+We finish we a conclusion summarizing the results and listing some interesting future research directions.
 
 \section{Graph-based model}
 Graphs are a natural representation for source code, due to its highly interlinked structure.
@@ -104,6 +108,7 @@ The steps are repeated for $T$ timesteps. Finally, the overall prediction is com
 \end{align}
 
 In this computation $M$, $U$ and $R$ are all learnable differentiable functions.
+Because the whole system is differentiable, parameters can be learned with gradient-based optimization.
 
 \subsection{Applications to source code}\label{sec:app}
 \Cref{tbl:mpnn-applications} shows some applications of (variations of) message passing neural networks to source code.
@@ -238,24 +243,60 @@ A similar approach is followed by \citet{allamanis_learning_2018}, where they av
 \section{Behaviour-based model}
 Behaviour-based models make inferences about properties of source code by learning from data gathered from its runtime behaviour.
 They provide an interesting alternative to the graph-based models in applications that focus on how the code behaves (semantics) instead of how it was written (syntax).
-These models should therefore be more resistant to syntactic modifications, which we explore in more detail in the evaluation.
+These models should therefore be more resistant to syntactic modifications.
+Some applications of execution-based program features are shown in \cref{tab:app-behaviour}.
+
+A behaviour-based model of a program works by learning features from the executions of programs.
+The first question hence is how to represent these executions.
+The most common form here is to consider executions as a sequence of program states, where each program state is represented by a set of variable assignments~\cite{yao_learning_2020,wang_learning_2019,padhi_data-driven_2016,piech_learning_2015,paasen_execution_2016}.
+Since such trace data contains a lot of unique states, \citet{henkel_code_2018} suggest abstracting the trace to only include a subset of relevant information represented as symbolic events.
+Events include for example function calls, function returns, equivalence of return values and function parameters.
+Symbolic traces are also used in the model of \citet{wang_learning_2019-1} in combination to the concrete traces.
+This is an improvement to prior work by the same authors~\cite{wang_learning_2019} which only used concrete traces.
+Instead of simple vectors of program variables, we can also represent the program state as a graph.
+It is useful if the underlying programming language supports references or pointers, where variables or memory locations can naturally ``point'' to other locations in the program state.
+This representation is used by \citet{brockschmidt_learning_2017} and \citet{li_gated_2017} in a system that learns a heuristic to generate predicates in separation logic that describe invariants of data structures on the program heap (a problem named shape analysis).
+Whereas the former work uses simple manually extracted features from the graph, \citet{li_gated_2017} use the gated graph neural networks described in the previous section to automatically learn features for this task.
+
+There are two fundamentally different approaches to apply machine learning to the data extracted from program executions.
+The first variant is to train a single embedding or model on executions of different programs.
+This is then later applied to new unseen programs.
+Almost all the listed works in \cref{tab:app-behaviour} follow this approach, except two.
+\citet{yao_learning_2020} train a model to capture the behaviour of a single program, and then extract a loop invariant from the parameters of this model.
+A combination between both approaches (learning a shared model for all possible executions and representing a single program by an optimized model) is described by \citet{piech_learning_2015}.
+They learn an encoder from the program state into a new space where the training programs can approximately be described as linear functions.
+Using these linear functions as features of programs, they then train a classifier that can predict whether feedback given to one program can be propagated to a program by a different student.
+Both these applications make use of the fact that machine learning models are often good generic function approximators.
+The approach has similarities to the field of program synthesis, especially the task of inferring a program or formula that satisfies certain input output examples.
+
+Compared to graph-based models, there appear to be less works that use executions as a feature for learning over programs, especially ones using deep learning methods.
+Reasons for this may be that it is harder to gather execution data since it requires running the program which is impossible in some situations (such as incomplete programs during development, although this can be mitigated slightly by symbolic techniques which can execute single functions) and must be implemented separately for each supported programming language.
+That makes this approach more complex to implement compared to the graph-based one.
+Main applications include the use in tutoring systems to give feedback to students~\cite{piech_learning_2015,paasen_execution_2016} and inferring invariants~\cite{yao_learning_2020,padhi_data-driven_2016,brockschmidt_learning_2017}.
+Intelligent tutoring systems often contain a very controlled programming environment, sidestepping some of the issues associated with gathering execution traces.
 
 \begin{table*}[t]
   \begin{tabularx}{\textwidth}{lX}
     \toprule
     Reference & Description \\
     \midrule
-    \citet{yao_learning_2020} & Extract non-linear loop invariants from learned model of loop behaviour \\
-    \citet{henkel_code_2018} & Generate function vectors from usage contexts \\
-    \citet{wang_learning_2019} & Learn representation of program semantics from execution trace \\
-    \citet{padhi_data-driven_2016} & Learn preconditions from program traces \\
-    \citet{li_gated_2017} & Learn separation logic formulas for heap objects \\
-    \citet{brockschmidt_learning_2017} & Learning shape analysis \\
-    \citet{piech_learning_2015} & ... \\
-    \citet{paasen_execution_2016} & ... \\
+    \citet{yao_learning_2020} & extract non-linear loop invariants from learned model of loop behaviour \\
+    \citet{henkel_code_2018} & generate function vectors from usage contexts \\
+    \citet{wang_learning_2019} & learn representation of program semantics from execution trace \\
+    \citet{padhi_data-driven_2016} & learn preconditions from program traces \\
+    \citet{li_gated_2017} & learn separation logic formulas for heap objects \\
+    \citet{brockschmidt_learning_2017} & learning shape analysis \\
+    \citet{piech_learning_2015} & learn program embedding to propagate student feedback \\
+    \citet{paasen_execution_2016} & identify algorithm, errors and error location for student feedback \\
     \bottomrule
   \end{tabularx}
+  \caption{Application using runtime features of program executions}\label{tab:app-behaviour}
 \end{table*}
+
+\begin{figure}
+
+\end{figure}
+
 
 \section{Evaluation}\label{sec:eval}
 
@@ -278,7 +319,7 @@ Only results relevant to the comparision between graph and behavioural approache
 
 A baseline for \textsc{MethodNaming} is given by a non-graph based model by \citet{alon_code2seq_2019}.
 They train a model that learns to embed and aggregate paths through the AST of the method automatically.
-In contrast to their previous code2vec \cite{code2vec} model, code2seq uses a sequence based decoder based on this embedding.
+In contrast to their previous code2vec~\cite{alon_code2vec_2019} model, code2seq uses a sequence based decoder based on this embedding.
 The model is evaluated on a dataset of 11 large java projects (java-small \cite{allamanis_convolutional_2016}) and two new datasets consisting of top-starred java projects from GitHub (java-medium, java-large).
 \citet{fernandes_structured_2020} improve on this result by using graph neural networks for the encoding step.
 Their best result is a combination of a gated graph neural network combined with sequence neural networks for encoding, combined with a new decoder (an LSTM network with a pointer network-style copying mechanism).
@@ -356,20 +397,23 @@ In general, there are still not enough comparable works on predicting loop invar
 While both architectures capture enough information to be useful predictors for invariants, they are evaluated in different settings (verifying invariants vs generating) and on different datasets.
 A possible future research question could be to evaluate them in a common setting, to obtain insights into how well the different program representations perform.
 
-\subsection{Model robustness}
-Models differ in their robustness to input changes, like refactorings that change the code but should not change the model prediction (in some applications).
-Behaviour models for example are by design unaffected by syntax changes that do not affect semantics, while they might have trouble with different algorithms that are closely related in implementation.
-Graph-based models should be able to capture these implementation similars better, but they are likely to be more sensitive to syntax changes.
-
-An interesting line of work to understand the robustness of different models is exploring adversarial examples.
-Adversarial examples are constructed by modifying the input to the model in order to force it to predict certain outputs.
-By exploring the sucessful and unsuccessful modifications, we can then make observations about what parts of the input are important for the model to make its prediction.
-
-
-
 \section{Conclusion}
+We have seen that both graph- and behaviour-based models have their use for learning tasks over source code.
+Although they are applied for similar tasks, a direct comparision is often not possible due to different datasets and slightly different applications.
+Some future research directions could be:
 
-\FloatBarrier
+\paragraph{Can we design a generic benchmark dataset to compare these models on?}
+  As seen in the evaluation, models are often evaluated on ad-hoc tasks and benchmark sets.
+  It would be good to have a standarised, commonly accepted set of tasks along with datasets to compare different approaches on.
+  This could also be helpful in determining if there are generic, pre-trainable models that work well for a wide variety of tasks as is the case for NLP.
+\paragraph{What are the weaknesses and strengths of each model?}
+  Graph based models can exploit syntatical similarities taking hints from the programmer, which behaviour based models cannot. There are indications that this makes behaviour based models better for complex code that is algorithmic in nature.
+  To explore this, a comparision of state of the art models for both tasks on the same dataset is needed.
+  An interesting avenue in this direction is also work on adversarial examples, which provide insight into what properties of the input data these model bases their predictions on \cite{zhang_generating_2020,yefet_adversarial_2020,ramakrishnan_semantic_2020,bielik_adversarial_2020}.
+\paragraph{Can both models be useful in combination?}
+  Related to the previous question, if these models have different strengths, a variant that capitalizes on both models' strength by combining could be explored.
+
+\clearpage
 
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{zotero}
