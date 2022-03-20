@@ -1,8 +1,8 @@
 * 1: why machine learning
-** what is the type of this variable: var counter
+** what is the type of this variable: param retries
 *** classical approaches focused on correctness like type inference may not be able to solve this
 *** solution is never going to be 100% exact
-*** but still useful: recomendations, or replacing heuristics and checking later
+*** but still useful: recommendations, or replacing heuristics and checking later (loop invariants)
 ** machine learning provides a way to solve this in a well-founded way: natural code hypothesis
 #+BEGIN_QUOTE
 *The naturalness hypothesis*
@@ -28,15 +28,7 @@ hard to compare different models because they focus on different tasks
 (BACKUP: table with models and tasks)
 
 ** method name prediction
-** type prediction
 ** loop invariant generation
-** semantic label prediction
-* evaluation: type prediction
-** task: type prediction
-** papers: typilus, code2vec, bielik adversarial
-* evaluation: method name prediction
-* evaluation: semantic label prediction (CoSET)
-* evaluation: loop invariant generation
 * research directions
 ** understand *how*/*what* models learn
 *** are some models better for some tasks?
@@ -46,6 +38,7 @@ hard to compare different models because they focus on different tasks
 ** new architectures
 *** general pretrained models that can be finetuned? (cf BERT, GPT, XLNet)
 *** combine dynamic with static features?
+*** prediction performance
 * conclusion
 ** active research in structured models
 ** lots of open questions
@@ -367,6 +360,13 @@ allows for "init state" (if run until convergence, init state is not necessary)
 ** [[file:ref.bib::DBLP:conf/sas/BrockschmidtCKK17][Brockschmidt et al. 2017: Learning Shape Analysis]]
 *** treat separation logic formula prediction problem as classification (grammar production, cur state)
 *** manually extracted features from graph used as input
+**  [[file:ref.bib::DBLP:conf/edm/PaassenJH16][Paa\ssen et al. 2016: Execution Traces as a Powerful Data Representation for Intelligent Tutoring Systems for Programming]]
+*** have a nice graphic for syntactic vs trace edit distance embedding
+*** represent programs as execution trace, use dynamic time warping dissimilarity as similarity func
+*** much better than syntactical approach on error detection, a bit better for algo classification
+*** better, but not good results for error localization
+*** leave identifying relevant variables to future work
+*** propose unifying both syntax and trace approaches in future research
 ** TODO [[file:ref.bib::DBLP:conf/sigsoft/HellendoornBBA18][Hellendoorn et al. 2018: Deep learning type inference]]
 ***
 ** TODO [[file:ref.bib::DBLP:conf/icml/CvitkovicSA19][Cvitkovic et al. 2019: Open Vocabulary Learning on Source Code with a Graph-Structured Cache]]

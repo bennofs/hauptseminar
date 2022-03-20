@@ -1,0 +1,416 @@
+\documentclass[169]{beamer}
+
+\usetheme[numbering=fraction]{metropolis}
+
+\usepackage{polyglossia}
+\usepackage{csquotes}
+\usepackage{fontspec}
+\usepackage{blindtext}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{appendixnumberbeamer}
+\usepackage{tikz}
+\usepackage{pifont}
+\usetikzlibrary{positioning}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{shapes.geometric}
+\usetikzlibrary{calc}
+\usetikzlibrary{fit}
+\usepackage{upquote}
+
+\lstset{upquote=true}
+\metroset{block=fill}
+%\setsansfont[BoldFont={Fira Sans SemiBold}]{Fira Sans Book}
+\makeatletter
+\newlength\beamerleftmargin
+\setlength\beamerleftmargin{\Gm@lmargin}
+\makeatother
+
+\title{Graph- and behaviour-based machine learning models to understand program semantics}
+\subtitle{Seminar Current Topics in Compiler Construction (Hauptseminar) }
+\author{Benno Fünfstück}
+\date{July 13, 2020}
+
+\begin{document}
+
+%\includeonlyframes{current}
+
+\tikzset{
+  onslide/.code args={<#1>#2}{%
+    \only<#1>{\pgfkeysalso{#2}}% \pgfkeysalso doesn't change the path
+  },
+  temporal/.code args={<#1>#2#3#4}{%
+    \temporal<#1>{\pgfkeysalso{#2}}{\pgfkeysalso{#3}}{\pgfkeysalso{#4}}%
+  },
+  hidden/.style = {opacity=0},
+  uncover/.style = {temporal=#1{hidden}{}{hidden}},
+}
+
+\maketitle
+
+\begin{frame}[fragile]
+  \frametitle{Why ML for programs?}
+  \begin{lstlisting}[language=C]
+function fetchData(retries) {
+  for (var i = 0; i < retries; i += 1) {
+    print("attempt", i);
+
+    // ...
+  }
+}
+  \end{lstlisting}
+  what is the type of the parameter \verb|retries|?
+  \pause
+
+  \begin{block}{The naturalness hypothesis}
+    ``Software is a form of human communication;
+    software corpora have similar statistical properties to natural language corpora;
+    and these properties can be exploited to build better software engineering tools.''
+    \cite{allamanis_survey_2018}
+  \end{block}
+\end{frame}
+
+\begin{frame}<1-3>[label=representation]
+  \frametitle{Representing programs}
+  \begin{tikzpicture}
+    \node[draw,thick,anchor=west,minimum width=100pt] at (0,0) (n1) {Characters / Tokens};
+    \node[draw,thick,anchor=west] at (0,-2) (n2) { Abstract Syntax Tree };
+    \node[draw,thick,anchor=west,onslide=<3>alert] at (0,-4) (n3) { Program Graphs (data flow, control flow) };
+    \node[draw,thick,anchor=west,onslide=<4>alert] at (0,-6) (n4) { Program Behaviour (execution traces) };
+    \node[uncover=<2->,anchor=east] at (-1.5,0) (sc) {source code};
+    \node[uncover=<2->,anchor=east] at (-1.5,-6) (se) {semantics};
+    \draw[uncover=<2->, -{Triangle[width=15pt,length=8pt]}, line width=7pt] (-1,0.5) -- (-1,-6.5);
+  \end{tikzpicture}
+\end{frame}
+
+\begin{frame}[t,fragile]
+  \frametitle{Programs as graphs \cite{allamanis_learning_2018}}
+  \begin{tikzpicture}
+  \node[draw] (func) at (5,5) { Function };
+  \node[draw,ellipse] (funcName) at (2,4.5) { fetchData };
+  \node[draw,ellipse,onslide=<6>alert] (funcParam) at (8,4.5) { retries };
+  \node[draw] (for) at (5,3.5) { For };
+
+  \node[draw] (assign) at (0,2) { Assign };
+  \node[draw,ellipse] (assign_i) at (-0.5,0.5) {i};
+  \node[draw,ellipse] (assign_0) at (0.25,0.5) {0};
+
+  \node[draw] (lt) at (2.5,2) { Lt };
+  \node[draw,ellipse] (lt_i) at (1.5,0.5) { i };
+  \node[draw,ellipse] (lt_retries) at (3,0.5) { retries };
+
+  \node[draw] (addassign) at (5,2) { AddAssign };
+  \node[draw,ellipse] (add_i) at (4.5,0.5) { i };
+  \node[draw,ellipse] (add_1) at (5.5,0.5) { 1 };
+
+  \node[draw] (call) at (9,2) { Call };
+  \node[draw,ellipse] (call_func) at (7,0.5) { print };
+  \node[draw,ellipse, inner ysep=5pt, inner xsep=-4pt] (call_attempt) at (9,0.5) { "attempt" };
+  \node[draw,ellipse] (call_i) at (10.5,0.5) { i };
+
+  % basic ast
+  \draw[->] (func) -- (funcName);
+  \draw[->] (func) -- (funcParam);
+  \draw[->] (func) -- (for);
+  \draw[->] (for) -- (assign);
+  \draw[->] (for) -- (lt);
+  \draw[->] (for) -- (addassign);
+  \draw[->] (for) -- (call);
+  \draw[->] (assign) -- (assign_i);
+  \draw[->] (assign) -- (assign_0);
+  \draw[->] (lt) -- (lt_i);
+  \draw[->] (lt) -- (lt_retries);
+  \draw[->] (addassign) -- (add_i);
+  \draw[->] (addassign) -- (add_1);
+  \draw[->] (call) -- (call_func);
+  \draw[->] (call) -- (call_attempt);
+  \draw[->] (call) -- (call_i);
+
+  \node[anchor=west,uncover=<2>] at (0,5.5) {\color{lime!30!black}{\textsc{NextToken}}};
+  \node[anchor=west,uncover=<3>] at (0,5.5) {\color{blue!30!black}{\textsc{NextLexicalUse}}};
+  \node[anchor=west,uncover=<4>] at (0,5.5) {\color{pink!30!black}{\textsc{PrevUse}}};
+  \node[anchor=west,uncover=<5>] at (0,5.5) {\color{teal!30!black}{\textsc{GuardedBy}}};
+
+  % next token
+  \begin{scope}[->,thick,lime!69!black,uncover=<2->]
+    \draw (funcName) .. controls (5,6) .. (funcParam);
+    \draw (funcParam) .. controls (4,4.5) and (1.5,2) .. (assign_i);
+    \draw (assign_i) -- (assign_0);
+    \draw (assign_0) -- (lt_i);
+    \draw (lt_i) -- (lt_retries);
+    \draw (lt_retries) -- (add_i);
+    \draw (add_i) -- (add_1);
+    \draw (add_1) -- (call_func);
+    \draw (call_func) -- (call_attempt);
+    \draw (call_attempt) -- (call_i);
+  \end{scope}
+
+  % next lexical use
+  \begin{scope}[->,thick,blue!69!black,uncover=<3->]
+    \draw (assign_i.south) to[bend right=80] (lt_i.south);
+    \draw (lt_i.south) to[bend right=45] (add_i.south);
+    \draw (add_i.south) to[bend right=20] (call_i.south);
+    \draw (funcParam) to[bend right=45] (lt_retries);
+  \end{scope}
+
+  % last use
+  \begin{scope}[->,thick,pink!60!black,uncover=<4->]
+    \draw (lt_i) to[bend left=45] (assign_i);
+    \draw (lt_i) to[bend right=45] (add_i);
+    \draw (add_i) to[bend right=27] (call_i);
+    \draw (lt_retries.west) to[bend left=120] (lt_retries.east);
+  \end{scope}
+
+  % guarded by
+  \begin{scope}[->,thick,teal!60!black,uncover=<5->]
+    \draw (call_i) .. controls (6,3) .. (lt);
+  \end{scope}
+  \end{tikzpicture}
+\end{frame}
+
+\begin{frame}[t]
+  \frametitle{Message Passing Neural Network}
+  \begin{tikzpicture}
+  \node[draw] (func) at (5,5) { Function };
+  \node[draw,ellipse] (funcName) at (2,4.5) { fetchData };
+  \node[draw,ellipse, thick] (funcParam) at (8,4.5) { \textbf{retries} };
+
+  \node[draw,ellipse] (assign_i) at (-0.5,0.5) {i};
+  \node[draw,ellipse] (lt_retries) at (3,0.5) { retries };
+
+  % basic ast
+  \draw[->] (func) -- (funcParam);
+
+  % next token
+  \begin{scope}[->,thick,lime!69!black]
+    \draw (funcName) .. controls (5,6) .. (funcParam);
+  \end{scope}
+
+  \draw[<-, thick, olive] (funcParam) .. controls (4,4.5) and (1.5,2) .. (assign_i);
+
+  % next lexical use
+  \begin{scope}[->,thick,cyan!69!black]
+    \draw (lt_retries) to[bend left=45] (funcParam);
+  \end{scope}
+
+
+  \begin{scope}[fill opacity=0.8,uncover=<-4>]
+    \node[below right=0.05 of assign_i, xshift=-0.4cm, outer sep=0pt] { $(0,2,3)^{T}$ };
+    \node[below=0.05 of lt_retries] { $(0,2,1)^{T}$ };
+    \node[above=0.05 of funcName, fill=white] { $(0,1,1)^{T}$ };
+    \node[above=0 of func, fill=white] { $(1,0,1)^{T}$ };
+  \end{scope}
+  \node[above=0.05 of funcParam, fill=white, fill opacity=0.8, uncover=<-5>] { \textcolor<5>{magenta}{$(0,2,1)^{T}$} };
+
+  \begin{scope}[uncover=<3>]
+    \node[text width=150pt, anchor=north] at (8,4.0) {
+      edge messages \\
+      $m_{1} = \textcolor{lime!60!black}{A_{token}} * (0,1,1)^{T}$ \\
+      $m_{2} = A_{child} * (1,0,1)^{T}$ \\
+      $m_{3} = \textcolor{olive}{A_{token'}} * (0,2,3)^{T}$ \\
+      $m_{4} = \textcolor{cyan!60!black}{A_{use'}} * (0,2,1)^{T}$ \\
+    };
+  \end{scope}
+
+
+  \begin{scope}[uncover=<4->]
+    \node[text width=150pt, anchor=north] at (8,4.0) {
+      edge messages \\
+      $m_{1} = (0,1,0)^{T}$ \\
+      $m_{2} = (2,0,0)^{T}$ \\
+      $m_{3} = (0,5,3)^{T}$ \\
+      $m_{4} = (1,2,0)^{T}$ \\
+    };
+  \end{scope}
+
+  \begin{scope}[uncover=<5->]
+    \node[text width=150pt, anchor=north] at (8,1.0) {
+      aggregate and update \\
+      $\sum{m_{i}} = \alert<5>{(3,8,3)}^{T}$ \\
+      $\textcolor<6>{magenta}{h_{t+1}} = GRU(\textcolor<5>{magenta}{(0,2,1)}^{T}, \alert<5>{(3,8,3)}^{T}) $ \\
+    };
+  \end{scope}
+
+  \begin{scope}[fill opacity=0.8, uncover=<6->]
+    \node[above=0.05 of funcParam, fill=white] { \textcolor{magenta}{$(5,7,0)^{T}$}};
+  \end{scope}
+  \end{tikzpicture}
+\end{frame}
+
+\againframe<4>{representation}
+
+\begin{frame}[fragile]
+  \frametitle{Programs as traces}
+  \begin{tikzpicture}
+    \node[text width=70pt,draw] at (0,0) (trace1) {
+    \textbf{trace 1} \\
+    ... \\
+    retries=3 i=0 \\
+    retries=3 i=1 \\
+    retries=3 i=2 \\
+    retries=3 i=3 \\
+    ...
+    };
+    \node[text width=70pt,draw,right=of trace1.north east,anchor=north west] (trace2) {
+    \textbf{trace 2} \\
+    ... \\
+    retries=5 i=0 \\
+    retries=5 i=1 \\
+    retries=5 i=2 \\
+    retries=5 i=3 \\
+    retries=5 i=4 \\
+    retries=5 i=5 \\
+    ...
+    };
+    \node[text width=70pt,draw,right=of trace2.north east,anchor=north west] (trace3) {
+    \textbf{trace 3} \\
+    ... \\
+    retries=1 i=0 \\
+    retries=1 i=1 \\
+    ...
+    };
+  \end{tikzpicture}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Learning from traces}
+  \textbf{variant 1}: learn program embedding
+
+  \begin{tikzpicture}[every node/.style={draw}, node distance=0.2]
+      \node (trace1)                     { trace 1 };
+      \node (trace2) [below=of trace1]   { trace 2 };
+      \node (trace3) [below=of trace2]   { trace 3 };
+
+      \node (model) [right=2.5cm of trace2] { model };
+
+      \node[draw=none] (output) [right=1cm of model] { output };
+
+      \draw[->, thick] {
+        (trace1) edge (model)
+        (trace2) edge (model)
+        (trace3) edge (model)
+        (model) edge (output)
+      };
+  \end{tikzpicture}
+
+  \vspace{0.5cm}
+  \textbf{variant 2}: learn model to ``emulate'' program (synthesis)
+
+  \begin{tikzpicture}[node distance=0.2, every node/.style={draw}]
+    \node (trace1) { trace 1 };
+    \node (trace2) [below=of trace1]{ trace 2 };
+    \node (trace3) [below=of trace2]{ trace 3 };
+    \node (model1) [right=2.5cm of trace1] { model };
+    \node (model2) [right=2.5cm of trace2] { model };
+    \node (model3) [right=2.5cm of trace3] { model };
+    \node (model-final) [above right=0.1 and 2.5cm of model2] { model };
+    \node[draw=none] (output) [below=0.6 of model-final] {output};
+    \draw[->]{
+      (trace1) edge (model1)
+      (trace2) edge (model2)
+      (trace3) edge (model3)
+      (model-final) edge (output)
+    };
+    \draw[dashed]
+      (model1.north -| {$(model1)!.5!(model-final)$}) -- (model3.south -| {$(model1)!.5!(model-final)$});
+  \end{tikzpicture}
+\end{frame}
+
+\section{Evaluation}
+
+\begin{frame}[label=current, t, fragile]
+  \frametitle{Evaluation: \textsc{MethodNaming}}
+    \begin{lstlisting}
+boolean f(Set<String> set, String value) {
+    for (String entry : set) {
+        if (entry.equalsIgnoreCase(value)) {
+            return true;
+        }
+    }
+    return false;
+}
+    \end{lstlisting}
+
+  prediction: contains ignore case
+\end{frame}
+
+\begin{frame}
+  \frametitle{Evaluation: \textsc{MethodNaming}}
+  % liger: filtered dataset
+  \hspace*{-0.5\beamerleftmargin}
+  \begin{tikzpicture}[node distance=0.70cm,xshift=-0.4cm]
+    \node (code2seq) {code2seq~\cite{alon_code2seq_2019}};
+    \node [above right=0.05cm and 1.5cm of code2seq] (sns) {SNS~\cite{fernandes_structured_2019}};
+    \node [below right=0.05cm and 1.5cm of code2seq] (dypro) {\textsc{DyPro}~\cite{wang_learning_2019}};
+    \node [below=0.25cm of dypro](liger) {\textsc{LiGer}~\cite{wang_blended_2020}};
+    \node [below=3cm of code2seq](ncc) {NCC~\cite{ben-nun_neural_2018}};
+    \node [right=of ncc](programl) {\textsc{ProGraML}~\cite{cummins_programl_2020}};
+
+    \node [color=gray, fit=(code2seq) (sns) (liger) (dypro),draw,label={[above left,text=black!65!white]above left:\small{java dataset (java-*)}}] {};
+    \node [color=gray, fit=(ncc) (programl),draw,label={[above right,text=black!65!white]175.5:\small{POJ-104 dataset}}] {};
+
+    \path[->]
+      (code2seq) edge (sns.west)
+      (code2seq) edge (dypro.west)
+      (dypro) edge (liger)
+      (code2seq) edge (liger.west)
+      (ncc) edge (programl);
+  \end{tikzpicture}
+
+\end{frame}
+
+\begin{frame}[label=current, fragile]
+  \frametitle{Evaluation: Invariant inference}
+\begin{lstlisting}
+x = 1; y = 0;
+while (y < 100000) {
+  x = x + y;
+  y = y + 1;
+}
+assert(x >= y);
+\end{lstlisting}
+  Example invariant: $x > y$
+\end{frame}
+
+\begin{frame}[label=current, fragile]
+  \frametitle{Evaluation: Invariant inference}
+  \metroset{block=transparent}
+  \begin{block}{GGNN~\cite{hellendoorn_are_2019}}\vskip 0pt
+    gated graph neural network for checking dynamically generated invariants
+  \end{block}
+  \begin{block}{\textsc{DyPro}~\cite{wang_learning_2019}}\vspace{0pt}
+    checking loop invariants with behaviour-based model
+  \end{block}
+  \begin{block}{code2inv~\cite{si_learning_2018}}\vspace{0pt}
+    synthesis using graph-neural network representation as memory
+  \end{block}
+  \begin{block}{GCLN~\cite{yao_learning_2020}}\vspace{0pt}
+    synthesis by fitting gated continuous logic networks to trace data
+  \end{block}
+\end{frame}
+
+\begin{frame}[t]{Conclusion and future research directions}
+  \begin{itemize}
+      \item Graph-based models improve on simpler models
+      \item Behaviour-based models better at semantics (as expected)
+      \item But require execution traces
+  \end{itemize}
+  \vspace{1ex}
+  \textbf{Research directions} \\
+  \emph{datasets}: standarized, to evaluate different models \\
+  \emph{architectures:} combine static/dynamic, performance, pretrain \\
+  \emph{analysis:} adversarial examples, different languages \\
+
+\end{frame}
+
+\appendix
+
+\begin{frame}[allowframebreaks]{References}
+
+  \bibliography{zotero}
+  \bibliographystyle{apalike}
+
+\end{frame}
+
+
+\end{document}
